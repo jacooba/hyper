@@ -1,0 +1,40 @@
+FROM pytorch/pytorch:1.7.0-cuda11.0-cudnn8-runtime
+MAINTAINER Luisa Zintgraf
+
+# RUN rm /etc/apt/sources.list.d/cuda.list
+# RUN rm /etc/apt/sources.list.d/nvidia-ml.list
+
+RUN apt-get update && apt-get install -y \
+    vim wget unzip \
+    libosmesa6-dev libgl1-mesa-glx libgl1-mesa-dev libglu1-mesa-dev libxi6 patchelf libglfw3 build-essential ffmpeg
+
+RUN useradd -u <<UID>> --create-home user
+USER user
+WORKDIR /home/user
+
+RUN wget -q https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+    bash Miniconda3-latest-Linux-x86_64.sh -b -p miniconda3 && \
+    rm Miniconda3-latest-Linux-x86_64.sh
+
+ENV PATH /home/user/miniconda3/bin:$PATH
+
+# Python packages
+RUN conda install python=3.8.5
+# RUN conda install pytorch==1.4 torchvision tensorboard==2.0.0 cudatoolkit=10.1 seaborn snakeviz matplotlib -c pytorch
+RUN conda install pytorch==1.7.0 torchvision tensorboard==2.0.0 cudatoolkit=11.0 seaborn snakeviz matplotlib -c pytorch
+RUN pip install 'cython<3' tensorboardX gym==0.9.1 psutil dataclasses akro click dowel cloudpickle numpy==1.23.4
+
+# MuJoCo
+ENV MUJOCO_PY_MJKEY_PATH /home/user/.mujoco/mjkey.txt
+ENV MUJOCO_PY_MJPRO_PATH /home/user/.mujoco/mjpro131
+RUN mkdir -p .mujoco \
+    && wget https://www.roboti.us/download/mjpro131_linux.zip -O mujoco.zip \
+    && unzip mujoco.zip -d .mujoco \
+    && rm mujoco.zip
+COPY mjkey.txt .mujoco/mjkey.txt
+ENV LD_LIBRARY_PATH /home/user/.mujoco/mjpro131/bin:${LD_LIBRARY_PATH}
+RUN pip install mujoco-py==0.5.7
+
+RUN pip install gym[mujoco]==0.9.1
+
+ADD . /home/user/
