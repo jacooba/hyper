@@ -1,0 +1,12 @@
+.DS_Store
+*.pyc
+__pycache__
+.idea
+mprofile*.dat
+MUJOCO_LOG.TXT
+
+
+logs/
+scripts/
+docker/
+video_*/
