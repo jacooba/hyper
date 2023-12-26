@@ -11,7 +11,7 @@ This repository contains code for the papers [*Hypernetworks in Meta-Reinforceme
   title     = {Hypernetworks in Meta-Reinforcement Learning},
   booktitle = {Conference on Robot Learning},
   year      = {2022},
-  url       =  {https://openreview.net/forum?id=N-HtsQkRotI}
+  url       = {https://openreview.net/forum?id=N-HtsQkRotI}
 }
 @inproceedings{beck2023recurrent,
   author     =  {Jacob Beck and Risto Vuorio and Zheng Xiong and Shimon Whiteson},
