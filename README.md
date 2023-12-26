@@ -1,94 +1,73 @@
-# VariBAD
+# Hypernetworks in Meta-RL
 
-Code for the paper "[VariBAD: A very good method for Bayes-Adaptive Deep RL via Meta-Learning](https://openreview.net/forum?id=Hkl9JlBYvr)" - 
-Luisa Zintgraf, Kyriacos Shiarlis, Maximilian Igl, Sebastian Schulze, 
-Yarin Gal, Katja Hofmann, Shimon Whiteson, published at ICLR 2020.
+This repository contains code for the papers *Hypernetworks in Meta-Reinforcement Learning* (Beck et al., 2022), published at CoRL, and *Recurrent Hypernetworks are Surprisingly Strong in Meta-RL* (Beck et al., 2023), published at NeurIPS.
+
+```
+@inproceedings{beck2022hyper,
+  author    = {Jacob Beck and
+               Matthew Jackson and
+               Risto Vuorio and
+               Shimon Whiteson},
+  title     = {Hypernetworks in Meta-Reinforcement Learning},
+  booktitle = {Conference on Robot Learning},
+  year      = {2022},
+}
+@inproceedings{beck2023recurrent,
+  author     =  {Jacob Beck and Risto Vuorio and Zheng Xiong and Shimon Whiteson},
+  title      =  {Recurrent Hypernetworks are Surprisingly Strong in Meta-RL},
+  booktitle  =  {Thirty-seventh Conference on Neural Information Processing Systems},
+  year       =  {2023},
+  url        =  {https://openreview.net/forum?id=pefAAzu8an}
+}
+```
+
+This code is based on *VariBAD: A very good method for Bayes-Adaptive Deep RL via Meta-Learning* (Zintgraf et al., 2020). If you use this code, please additionally cite this paper:
 
 ```
 @inproceedings{zintgraf2020varibad,
-  title={VariBAD: A Very Good Method for Bayes-Adaptive Deep RL via Meta-Learning},
-  author={Zintgraf, Luisa and Shiarlis, Kyriacos and Igl, Maximilian and Schulze, Sebastian and Gal, Yarin and Hofmann, Katja and Whiteson, Shimon},
-  booktitle={International Conference on Learning Representation (ICLR)},
-  year={2020}}
+  author    =  {Zintgraf, Luisa and Shiarlis, Kyriacos and Igl, Maximilian and Schulze, Sebastian and Gal, Yarin and Hofmann, Katja and Whiteson, Shimon},
+  title     =  {VariBAD: A Very Good Method for Bayes-Adaptive Deep RL via Meta-Learning},
+  booktitle =  {International Conference on Learning Representation (ICLR)},
+  year      =  {2020}}
 ```
 
-### Requirements
+Finally, the T-Maze environments, Minecraft environments, aggregators in `aggregator.py`, and SNR visualization are reproduced from *AMRL: Aggregated Memory For Reinforcement Learning* (Beck et al., 2020). If you use any of those modules, please cite this paper:
 
-We use PyTorch for this code, and log results using TensorboardX.
-
-The main requirements can be found in `requirements.txt`. 
-
-For the MuJoCo experiments, you need to install MuJoCo.
-Make sure you have the right MuJoCo version:
-- For the Cheetah and Ant environments, use `mujoco150`. 
-(You can also use `mujoco200` except for AntGoal, 
-because there's a bug which leads to 80% of the env state being zero).
-- For Walker/Hopper, use `mujoco131`.
-
-For `mujoco131`, use: `gym==0.9.1 gym[mujoco]==0.9.1 mujoco-py==0.5.7`
-
-### Overview
-
-The main training loop for VariBAD can be found in `metalearner.py`,
-the models are in `models/`, the VAE set-up and losses are in `vae.py` and the RL algorithms in `algorithms/`.
-
-There's quite a bit of documentation in the respective scripts so have a look there for details.
-
-### Running an experiment
-
-To evaluate variBAD on the gridworld from the paper, run
-
-`python main.py --env-type gridworld_varibad`
-
-which will use hyperparameters from `config/gridworld/args_grid_varibad.py`. 
-
-To run variBAD on the MuJoCo experiments use:
 ```
-python main.py --env-type cheetah_dir_varibad
-python main.py --env-type cheetah_vel_varibad
-python main.py --env-type ant_dir_varibad
-python main.py --env-type walker_varibad
+@inproceedings{beck2020AMRL,
+  author     =  {Jacob Beck and Kamil Ciosek and Sam Devlin and Sebastian Tschiatschek and Cheng Zhang and Katja Hofmann},
+  title      =  {AMRL: Aggregated Memory For Reinforcement Learning},
+  booktitle  =  {International Conference on Learning Representations},
+  year       =  {2020},
+  url        =  {https://openreview.net/forum?id=Bkl7bREtDr}
+}
 ```
 
-You can also run RL2 and the Oracle, just replace `varibad` above with the respective string. 
-See `main.py` for all options.
+### Usage
 
-The results will by default be saved at `./logs`, 
-but you can also pass a flag with an alternative directory using `--results_log_dir /path/to/dir`.
+The experiments can be found in `experiment_sets/`. The models themselves are defined in `models.py`. Main results on initialization methods (Beck et al., 2022) can be found in `init_main_results.py`. Main results on supervision (Beck et al., 2023) can be found in `main_results.py`. Analysis and the remaining environments can be found in `analysis.py` and `all_envs.py`, respectively.
 
-The default configs are in the `config/` folder. 
-You can overwrite any default hyperparameters using command line arguments.
+`run_experiments.py` can be used to build dockers, launch experiments, and start new experiments when there is sufficient space.
 
-Results will be written to tensorboard event files, 
-and some visualisations will be printed every now and then.
+*Example usage:*
+```
+python3 run_experiments.py main_results --shuffle --gpu_free 0-7 --experiments_per_gpu 3 |& tee log.txt
+```
 
-### Configs
+The script, `run_experiments.py`, automatically runs commands using the docker files, e.g., executing `run_cpu.sh mujoco150 0 python ~/MetaMem/main.py --env-type gridworld_varibad`, to run gridworld on CPU 0. Within a docker, this command could be run with `python main.py --env-type gridworld_varibad`. 
 
-Some comments on the flags in the config files:
-- You can choose what type of decoder you by setting the respective flags to true: 
-`--decode_reward True` and/or `--decode_state True`.
-- You can also choose a task decoder (`--decode_task True`), which was proposed by 
-[Humplik et al. (2019)](https://arxiv.org/abs/1905.06424). 
-This method uses privileged information during meta-training (e.g., the task description or ID)
-to learn the posterior distribution in a supervised way. 
-(Note that our implementation is based on the variBAD architecture, 
-so differs slightly from theirs.)
-- The size of the latent dimension can be changed using `--latent_dim`.
-- In our experience, the performance of PPO depends a lot on 
-the number of minibatches (`--ppo_num_minibatch`),
-the number of epochs (`ppo_num_epochs`),
-and the batchsize (change with `--policy_num_steps` and/or `--num_processes`).
-Another important parameter is the weight of the kl term (`--kl_weight`) in the ELBO.
+The main training loop itself can be found in `metalearner.py`, the hypernetwork is in `policy.py`, and added supervision for task inference is in `ppo.py`.
+
+After training, `visualize_runs.py` can be used for plotting. To automatically plot all results for a set of experiments, you can also use the `run_experiments.py` script.
+
+*Example usage:*
+```
+python3 run_experiments.py main_results --plot
+```
 
 ### Comments
 
-- When the flag `disable_metalearner` is activated, the file `learner.py` will be used instead of `metalearner.py`. 
-This is a stripped down version without encoder, decoder, stochastic latent variables, etc. 
-It can be used to train (belief) oracles or policies that are good on average.
-- For the environments do not use `np.random` (it's not thread safe) but stick to `random` or `torch.random`.
-- Currently, the VAE never looks at the starting state, but the prior is independent
-of where the agent starts. It was easier to implement like this. 
-Since actions/rewards aren't available at the first time step, 
-another option would be to just fill them with zeros.
-- I added an example environment with empty methods in `environments/example_env.py`,
-if you want to know what an environment should do.
+- The *env-type* argument refers to a config in `config/`, and is a list of default arguments common to an environment, but these can be overridden in the experiment set.
+- Different environments require one of three different dockers, specifying different MuJoCo versions, as documented in the respective experiments sets.
+The dockerfiles can be built automatically with `run_experiments.py`, or manually with, e.g., `bash build.sh Dockerfile_mj150`.
+- `requirements.txt` is legacy from VariBAD, and likely out of date.
