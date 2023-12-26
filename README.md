@@ -4,14 +4,11 @@ This repository contains code for the papers [*Hypernetworks in Meta-Reinforceme
 
 ```
 @inproceedings{beck2022hyper,
-  author     = {Jacob Beck and
-                Matthew Jackson and
-                Risto Vuorio and
-                Shimon Whiteson},
-  title      = {Hypernetworks in Meta-Reinforcement Learning},
-  booktitle  = {Conference on Robot Learning},
-  year       = {2022},
-  url        = {https://openreview.net/forum?id=N-HtsQkRotI}
+  author     =  {Jacob Beck and Matthew Jackson and Risto Vuorio and Shimon Whiteson},
+  title      =  {Hypernetworks in Meta-Reinforcement Learning},
+  booktitle  =  {Conference on Robot Learning},
+  year       =  {2022},
+  url        =  {https://openreview.net/forum?id=N-HtsQkRotI}
 }
 @inproceedings{beck2023recurrent,
   author     =  {Jacob Beck and Risto Vuorio and Zheng Xiong and Shimon Whiteson},
@@ -26,10 +23,10 @@ This repository is based on [code](https://github.com/lmzintgraf/varibad) from *
 
 ```
 @inproceedings{zintgraf2020varibad,
-  author    =  {Zintgraf, Luisa and Shiarlis, Kyriacos and Igl, Maximilian and Schulze, Sebastian and Gal, Yarin and Hofmann, Katja and Whiteson, Shimon},
-  title     =  {VariBAD: A Very Good Method for Bayes-Adaptive Deep RL via Meta-Learning},
-  booktitle =  {International Conference on Learning Representation (ICLR)},
-  year      =  {2020}}
+  author     =  {Zintgraf, Luisa and Shiarlis, Kyriacos and Igl, Maximilian and Schulze, Sebastian and Gal, Yarin and Hofmann, Katja and Whiteson, Shimon},
+  title      =  {VariBAD: A Very Good Method for Bayes-Adaptive Deep RL via Meta-Learning},
+  booktitle  =  {International Conference on Learning Representation (ICLR)},
+  year       =  {2020}}
 ```
 
 Finally, the T-Maze environments, Minecraft environments, aggregators in `aggregator.py`, and SNR visualization are reproduced from [*AMRL: Aggregated Memory For Reinforcement Learning* (Beck et al., 2020)](https://iclr.cc/virtual_2020/poster_Bkl7bREtDr.html). These files were adapted to PyTorch, from the [original code](https://github.com/jacooba/AMRL-ICLR2020) in TensorFlow. If you use any of those modules, please cite this paper:
