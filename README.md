@@ -22,7 +22,7 @@ This repository contains code for the papers [*Hypernetworks in Meta-Reinforceme
 }
 ```
 
-This code is based on *VariBAD: A very good method for Bayes-Adaptive Deep RL via Meta-Learning* (Zintgraf et al., 2020). If you use this code, please additionally cite this paper:
+This repository is based on [code](https://github.com/lmzintgraf/varibad) from *VariBAD: A very good method for Bayes-Adaptive Deep RL via Meta-Learning* (Zintgraf et al., 2020). If you use this code, please additionally cite this paper:
 
 ```
 @inproceedings{zintgraf2020varibad,
@@ -32,7 +32,7 @@ This code is based on *VariBAD: A very good method for Bayes-Adaptive Deep RL vi
   year      =  {2020}}
 ```
 
-Finally, the T-Maze environments, Minecraft environments, aggregators in `aggregator.py`, and SNR visualization are reproduced from *AMRL: Aggregated Memory For Reinforcement Learning* (Beck et al., 2020). If you use any of those modules, please cite this paper:
+Finally, the T-Maze environments, Minecraft environments, aggregators in `aggregator.py`, and SNR visualization are reproduced from [*AMRL: Aggregated Memory For Reinforcement Learning* (Beck et al., 2020)](https://iclr.cc/virtual_2020/poster_Bkl7bREtDr.html). These files were adapted to PyTorch, from the [original code](https://github.com/jacooba/AMRL-ICLR2020) in TensorFlow. If you use any of those modules, please cite this paper:
 
 ```
 @inproceedings{beck2020AMRL,
