@@ -4,14 +4,14 @@ This repository contains code for the papers [*Hypernetworks in Meta-Reinforceme
 
 ```
 @inproceedings{beck2022hyper,
-  author    = {Jacob Beck and
-               Matthew Jackson and
-               Risto Vuorio and
-               Shimon Whiteson},
-  title     = {Hypernetworks in Meta-Reinforcement Learning},
-  booktitle = {Conference on Robot Learning},
-  year      = {2022},
-  url       = {https://openreview.net/forum?id=N-HtsQkRotI}
+  author     = {Jacob Beck and
+                Matthew Jackson and
+                Risto Vuorio and
+                Shimon Whiteson},
+  title      = {Hypernetworks in Meta-Reinforcement Learning},
+  booktitle  = {Conference on Robot Learning},
+  year       = {2022},
+  url        = {https://openreview.net/forum?id=N-HtsQkRotI}
 }
 @inproceedings{beck2023recurrent,
   author     =  {Jacob Beck and Risto Vuorio and Zheng Xiong and Shimon Whiteson},
