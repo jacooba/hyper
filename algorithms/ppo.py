@@ -206,6 +206,7 @@ class PPO:
             else:
               policy_opt_to_vae = None
             for _ in range(self.args.num_vae_updates):
+                assert not args.disable_decoder, "Decoder loss needed to train task encoder."
                 compute_vae_loss(update=True, encoded_task_func=self.get_encoded_task_func(), policy_optimiser=policy_opt_to_vae)
 
         if self.lr_scheduler_policy is not None:
@@ -225,7 +226,7 @@ class PPO:
         latent_grad_norm /= num_updates
         state_norm /= num_updates
         latent_norm /= num_updates
-        
+
         self.update_index += 1
 
         # reset correct params after warm up
@@ -403,5 +404,3 @@ class PPO:
       g = torch.autograd.grad(to_diff, self.actor_critic.parameters(), create_graph=create_graph, allow_unused=True)
       g = torch.cat([(torch.zeros(param.shape) if param_grad is None else param_grad).reshape((-1,)).to(device) for param_grad, param in zip(g, self.actor_critic.parameters())])
       return g
-
-      return loss

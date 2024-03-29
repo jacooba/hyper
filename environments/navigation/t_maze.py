@@ -43,10 +43,10 @@ class Obs():
         self.MIDDLE        = [0,0,0]
         self.MIDDLE_UP     = [0,1,0]
         self.MIDDLE_DOWN   = [0,-1,0]
-        # The following indicators are appeneded to above if self.intermediate_indicators:
+        # The following indicators are appended to above if self.intermediate_indicators:
         self.CHECK_UP   = check_up
         self.CHECK_DOWN = check_down
-        self.END_CHECK  = 0 # Sepcial case for the end, if there is not be an indicator there
+        self.END_CHECK  = 0 # Special case for the end, if there is not be an indicator there
         self.CHECK2OBS  = {
             Check_Dir.UP: self.CHECK_UP, 
             Check_Dir.DOWN: self.CHECK_DOWN,
@@ -119,11 +119,16 @@ class TMaze(gym.Env):
             correlated_indicator_pos (int or None): If specified, another long-term indicator will be placed here,
                                                     and the agent must go up at the end iff the first indicator
                                                     and this indicator together occur with the pattern: UP, DOWN
+            agreement_indicator_pos (int or None): If specified, another long-term indicator will be placed here,
+                                                    and the agent must go up at the end iff the first indicator
+                                                    and this indicator agree in direction
             check_up (int): An int used to encode an intermedaite check "up" observation (per dimension)
             check_down (int): An int used to encode an intermedaite check "down" observation (per dimension)
             maze_length_upper_bound (int or None): If specified, a random maze length will be sampled
                                                    uniformly at random between maze_length and maze_length_upper_bound,
                                                    to test generalization
+            latent_dist (tuple(float, float) or None): None or (p1,p2) for two latent distributions determining distribution 
+                                                       of checks. This is used instead of a signal at the beginning.
     """
 
     def __init__(self, config):
@@ -147,9 +152,11 @@ class TMaze(gym.Env):
                               "wave_encoding_len",
                               "pos_enc",
                               "correlated_indicator_pos",
+                              "agreement_indicator_pos",
                               "check_up",
                               "check_down",
-                              "maze_length_upper_bound",])
+                              "maze_length_upper_bound",
+                              "latent_dist",])
         given_args = set(config.keys())
         self.OBS = Obs(check_up=config["check_up"], check_down=config["check_down"])
         assert given_args == required_args, "Errors on: {}".format(given_args ^ required_args)
@@ -181,9 +188,23 @@ class TMaze(gym.Env):
             assert self.maze_length_upper_bound >= self.maze_len, (self.maze_length_upper_bound, self.maze_len)
         self.indicator_pos = config["indicator_pos"]
         assert self.indicator_pos >= 0 and self.indicator_pos <= self.maze_len-1, self.indicator_pos
+        self.latent_dist = config["latent_dist"]
+        if self.latent_dist is not None:
+            assert config["flipped_indicator_pos"] is None
+            assert config["correlated_indicator_pos"] is None
+            assert config["agreement_indicator_pos"] is None
+            # Adjust observations so that the latent is not revealed by indicator, but only by intermediate checks
+            self.OBS.START_UP = self.OBS.START
+            self.OBS.START_DOWN = self.OBS.START
+            self.OBS.END_UP = self.OBS.END
+            self.OBS.END_DOWN = self.OBS.END
+            self.OBS.MIDDLE_UP = self.OBS.MIDDLE
+            self.OBS.MIDDLE_DOWN = self.OBS.MIDDLE
+            self.OBS_LIST = [self.OBS.START, self.OBS.END, self.OBS.MIDDLE,]
         
         self.flipped_indicator_pos = config["flipped_indicator_pos"]
         self.correlated_indicator_pos = config["correlated_indicator_pos"]
+        self.agreement_indicator_pos = config["agreement_indicator_pos"]
         indicator_at_endpoint = (self.indicator_pos == 0) or (self.indicator_pos == (self.maze_len-1))
         if self.flipped_indicator_pos is not None:
             assert self.correlated_indicator_pos is None, "Cannot have correlated indicator and flipped indicator currently"
@@ -196,6 +217,13 @@ class TMaze(gym.Env):
             assert not (indicator_at_endpoint or correlated_indicator_at_endpoint), \
                    "This is probably won't test the order dependence I want, so not implemented."
             assert not (self.correlated_indicator_pos == self.indicator_pos), "Cannot have both long term indicators in the same location"
+        if self.agreement_indicator_pos is not None:
+            assert self.correlated_indicator_pos is None, "Cannot have multiple secondary indicators"
+            assert self.flipped_indicator_pos is None, "Cannot have multiple secondary indicators"
+            agreement_indicator_at_endpoint = (self.agreement_indicator_pos == 0) or (self.agreement_indicator_pos == (self.maze_len-1))
+            assert not (indicator_at_endpoint or agreement_indicator_at_endpoint), \
+                   "This is probably won't test the order dependence I want, so not implemented."
+            assert not (self.agreement_indicator_pos == self.indicator_pos), "Cannot have both long term indicators in the same location"
 
         # This used to be editable, but to avoid Tuple action space, it is hardcoded
         self.num_indicators_components = 1
@@ -212,9 +240,17 @@ class TMaze(gym.Env):
         self.task_dim = len(self.get_task())
         self.num_tasks = 2 if self.secondary_indicator is None else 4
 
+        if self.latent_dist is not None:
+            assert self.secondary_indicator is None
+
     def seed(self, seed=None):
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
+
+    def get_latent_p(self):
+        assert self.latent_dist is not None
+        p = self.latent_dist[0] if (self.indicator == Indicator_Dir().UP) else self.latent_dist[1] # select p based on task
+        return p 
 
     def get_random_indicator(self):
         return self.np_random.choice([Indicator_Dir.UP, Indicator_Dir.DOWN], p=[0.5, 0.5])
@@ -237,8 +273,12 @@ class TMaze(gym.Env):
 
         if self.intermediate_indicators:
             random = self.np_random if self.reset_intermediate_indicators else np.random.RandomState(0)
-            self.checks = random.choice([Check_Dir.UP, Check_Dir.DOWN], 
-                                         size=(self.maze_len, self.num_indicators_components), p=[0.5, 0.5])
+            if self.latent_dist is None:
+                self.checks = random.choice([Check_Dir.UP, Check_Dir.DOWN], 
+                                             size=(self.maze_len, self.num_indicators_components), p=[0.5, 0.5])
+            else:
+                self.checks = random.choice([Check_Dir.UP, Check_Dir.DOWN], 
+                                             size=(self.maze_len, self.num_indicators_components), p=[self.get_latent_p(), 1-self.get_latent_p()])
             if not self.final_intermediate_indicator:
                 self.checks = list(self.checks)
                 self.checks[-1] = None
@@ -259,6 +299,9 @@ class TMaze(gym.Env):
         elif self.correlated_indicator_pos is not None:
             self.secondary_indicator_pos = self.correlated_indicator_pos
             self.secondary_indicator = self.get_random_indicator() if task is None else task[1] # This is correlated with goal in that DD,UU,DU -> D; UD -> U
+        elif self.agreement_indicator_pos is not None:
+            self.secondary_indicator_pos = self.agreement_indicator_pos
+            self.secondary_indicator = self.get_random_indicator() if task is None else task[1] # DD,UU -> U; UD,DU -> D
 
         return self.get_obs() if return_obs else None
 
@@ -342,8 +385,12 @@ class TMaze(gym.Env):
 
     def reset_cur_check(self):
         if self.checks[self.cur_pos] is not None:
-            self.checks[self.cur_pos] = self.np_random.choice([Check_Dir.UP, Check_Dir.DOWN], 
+            if self.latent_dist is None:
+                self.checks[self.cur_pos] = self.np_random.choice([Check_Dir.UP, Check_Dir.DOWN], 
                                                               size=(self.num_indicators_components), p=[0.5, 0.5])
+            else:
+                self.checks[self.cur_pos] = self.np_random.choice([Check_Dir.UP, Check_Dir.DOWN], 
+                                                              size=(self.num_indicators_components), p=[self.get_latent_p(), 1-self.get_latent_p()])
 
     def step(self, action):
         a = action
@@ -378,15 +425,20 @@ class TMaze(gym.Env):
             assert a in [Actions.UP, Actions.DOWN]
             if self.cur_pos == self.maze_len-1: # At end
                 # Tell whether successful
-                if self.correlated_indicator_pos is None:
-                    success = (a == self.indicator)# Only one indicator and agent is correct
-                else:
-                    indicator_pattern = (self.indicator, self.secondary_indicator) # DD,UU,DU -> D; UD -> U
-                    up_patterns = [(Actions.UP, Actions.DOWN)]
-                    down_patterns = [(Actions.DOWN, Actions.DOWN), (Actions.UP, Actions.UP), (Actions.DOWN, Actions.UP)]
+                if (self.correlated_indicator_pos is not None) or (self.agreement_indicator_pos is not None):
+                    indicator_pattern = (self.indicator, self.secondary_indicator)
+                    if self.correlated_indicator_pos is not None: # DD,UU,DU -> D; UD -> U
+                        up_patterns = [(Actions.UP, Actions.DOWN)]
+                        down_patterns = [(Actions.DOWN, Actions.DOWN), (Actions.UP, Actions.UP), (Actions.DOWN, Actions.UP)]
+                    else:
+                        assert self.agreement_indicator_pos is not None # DD,UU -> D; UD,DU -> U
+                        down_patterns = [(Actions.DOWN, Actions.DOWN), (Actions.UP, Actions.UP)]
+                        up_patterns = [(Actions.UP, Actions.DOWN), (Actions.DOWN, Actions.UP)]
                     assert indicator_pattern in (up_patterns + down_patterns), indicator_pattern
                     success = ((a == Actions.UP) and (indicator_pattern in up_patterns)) \
                           or ((a == Actions.DOWN) and (indicator_pattern in down_patterns))
+                else:
+                    success = (a == self.indicator)# Only one indicator and agent is correct
                 # Give reward and addign done
                 reward += self.success_reward if success else self.fail_reward
                 done = True
@@ -453,9 +505,11 @@ if __name__ == "__main__":
         "indicator_pos": 0,
         "flipped_indicator_pos": None, #can be null for no duplicate flipped indicator
         "correlated_indicator_pos": None, #can be null for no correlated indicator
+        "agreement_indicator_pos": None,
         "success_reward": 4.0,
         "fail_reward": -3.0,
         "persistent_reward": 0.0, # Reward given per time step
+        "latent_dist": None,
     }
 
     env = TMaze(example_TLN_config)

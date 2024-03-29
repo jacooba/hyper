@@ -32,13 +32,6 @@ def worker(remote, parent_remote, env_fn_wrapper):
                 remote.send((env.observation_space, env.action_space))
             elif cmd == 'get_task':
                 remote.send(env.get_task())
-                # print(type(env))
-                # print(vars(env))
-                # print(type(env.env))
-                # print(vars(env.env))
-                # print(env.get_task())
-                # print(type(env.env._env)) # environments.garage.envs.task_name_wrapper.TaskNameWrapper
-                # print(vars(env.env._env))
             elif cmd == 'task_dim':
                 remote.send(env.task_dim)
             elif cmd == 'get_belief':

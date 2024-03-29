@@ -291,9 +291,10 @@ class Hall(gym.Env):
             for step_idx in range(1, env._max_episode_steps + 1):
 
                 if step_idx == 1:
-                    episode_prev_obs[episode_idx].append(start_obs.clone())
+                    prev_obs = start_obs.clone()
                 else:
-                    episode_prev_obs[episode_idx].append(state.clone())
+                    prev_obs = state.clone()
+                episode_prev_obs[episode_idx].append(prev_obs)
 
                 # act
                 _, action, _ = utl.select_action(args=args,
@@ -316,6 +317,7 @@ class Hall(gym.Env):
                         action.float().to(device),
                         state,
                         rew_raw.reshape((1, 1)).float().to(device),
+                        prev_obs,
                         hidden_state,
                         return_prior=False)
 

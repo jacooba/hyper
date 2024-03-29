@@ -1,14 +1,14 @@
 import argparse
-from utils.helpers import boolean_argument, float_or_none, int_or_none
+from utils.helpers import boolean_argument, float_or_none, int_or_none, str_or_none
 
 
 def get_args(rest_args):
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--compute_grad_info', type=boolean_argument, default=False, help='whether to log cosine similarity of gradients between tasks and norms of gradients (adds computation)')
-
     parser.add_argument('--multinet', type=boolean_argument, default=False, help='Instead of using a hypernet, implement multi-net slow way for debugging.')
-
+    parser.add_argument('--full_transitions', type=boolean_argument, default=False, help='Instead of aggregating ars\' in memory, include previous state sars\'. Note that the very first decision will still be made from the prior, without conditioning on any input.')
+    
     parser.add_argument('--use_hypernet', type=boolean_argument, default=False, help='whether to use a hypernetwork to condition policy on task embedding/latent')
     parser.add_argument('--hypernet_input', type=str, default='task_embed', help='\'task_embed\' or \'latent\' will condition hypernet on task embedding or latent respectively')
     parser.add_argument('--init_hyper_for_policy', type=boolean_argument, default=True, help='whether to init the hypernetwork head so that it produces similar initial policy weights')
@@ -64,6 +64,16 @@ def get_args(rest_args):
     parser.add_argument('--encoder_max_init_low', type=boolean_argument, default=False, help='whether to start max aggregator state at an arbitrary low constant')
     parser.add_argument('--learn_init_state', type=boolean_argument, default=False, help='whether to learn the initial state for the encoder')
 
+    parser.add_argument('--invariant_init', type=boolean_argument, default=False, help='Use novel invariant initialization, e.g. for lstm.')
+    parser.add_argument('--invariant_init_adjusts_weights', type=boolean_argument, default=False, help='Whether invariant initialization, adjusts weights too.')
+    parser.add_argument('--wavg_temp', type=float_or_none, default=None, help='If specified, weighted average will compute a softmax weighted avg with this temp, isntead of using softplus.')
+    parser.add_argument('--softmax_temp', type=float, default=1., help='Temp for softmax aggregator.')
+    parser.add_argument('--learn_temps', type=boolean_argument, default=True, help='Whether to learn temps above for aggregators.')
+
+    parser.add_argument('--transformer_token_sz', type=int_or_none, default=None, help='Size of token embeddings for transformer. None will compute from mem size.')
+    parser.add_argument('--transformer_num_layers', type=int, default=2, help='Number of transformer blocks transformer')
+    parser.add_argument('--transformer_num_heads', type=int, default=2, help='Number of heads in transformer layers')
+    parser.add_argument('--transformer_mem_sz', type=int_or_none, default=256, help='Number of heads in transformer layers')
 
 
     return parser.parse_args(rest_args)

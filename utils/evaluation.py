@@ -75,6 +75,7 @@ def evaluate(args,
                                                  latent_mean=latent_mean,
                                                  latent_logvar=latent_logvar,
                                                  deterministic=True)
+            prev_state = state.clone()
 
             # observe reward and next obs
             [state, belief, task], (rew_raw, rew_normalised), done, infos = utl.env_step(envs, action, args)
@@ -87,6 +88,7 @@ def evaluate(args,
                                                                                               next_obs=state,
                                                                                               action=action,
                                                                                               reward=rew_raw,
+                                                                                              prev_obs=prev_state,
                                                                                               done=None,
                                                                                               hidden_state=hidden_state)
 
@@ -300,6 +302,7 @@ def get_test_rollout(args, env, policy, encoder=None):
         for step_idx in range(1, env._max_episode_steps + 1):
 
             episode_prev_obs[episode_idx].append(state.clone())
+            prev_state = state.clone()
 
             latent = utl.get_latent_for_policy(args,
                                                latent_sample=curr_latent_sample,
@@ -319,6 +322,7 @@ def get_test_rollout(args, env, policy, encoder=None):
                     action.float().to(device),
                     state,
                     rew_raw.reshape((1, 1)).float().to(device),
+                    prev_state,
                     hidden_state,
                     return_prior=False)
 

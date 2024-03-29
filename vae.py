@@ -559,6 +559,7 @@ class VaribadVAE:
         _, latent_mean, latent_logvar, _ = self.encoder(actions=vae_actions,
                                                         states=vae_next_obs,
                                                         rewards=vae_rewards,
+                                                        prev_states=vae_prev_obs,
                                                         hidden_state=None,
                                                         return_prior=True,
                                                         detach_every=self.args.tbptt_stepsize if hasattr(self.args, 'tbptt_stepsize') else None,

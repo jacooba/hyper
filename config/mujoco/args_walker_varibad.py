@@ -104,9 +104,7 @@ def get_args(rest_args):
     parser.add_argument('--action_embedding_size', type=int, default=32)
     parser.add_argument('--state_embedding_size', type=int, default=32)
     parser.add_argument('--reward_embedding_size', type=int, default=32)
-    parser.add_argument('--encoder_layers_before_gru', nargs='+', type=int, default=[])
     parser.add_argument('--encoder_gru_hidden_size', type=int, default=128, help='dimensionality of RNN hidden state')
-    parser.add_argument('--encoder_layers_after_gru', nargs='+', type=int, default=[])
     parser.add_argument('--latent_dim', type=int, default=10, help='dimensionality of latent space')
 
     # - decoder: rewards

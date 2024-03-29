@@ -244,6 +244,7 @@ class MetaLearner:
                                                                                                   next_obs=next_state,
                                                                                                   action=action,
                                                                                                   reward=rew_raw,
+                                                                                                  prev_obs=prev_state,
                                                                                                   done=done,
                                                                                                   hidden_state=hidden_state)
 
@@ -296,7 +297,7 @@ class MetaLearner:
             if self.args.precollect_len <= self.frames:
 
                 # check if we are pre-training the VAE
-                if self.args.pretrain_len > 0 and not vae_is_pretrained:
+                if self.args.pretrain_len > 0 and not vae_is_pretrained and not self.args.disable_decoder:
                     for _ in range(self.args.pretrain_len):
                         self.vae.compute_vae_loss(update=True)
                     vae_is_pretrained = True
@@ -334,6 +335,7 @@ class MetaLearner:
         latent_sample, latent_mean, latent_logvar, hidden_state = self.vae.encoder(actions=act,
                                                                                    states=next_obs,
                                                                                    rewards=rew,
+                                                                                   prev_states=prev_obs,
                                                                                    hidden_state=None,
                                                                                    return_prior=True,
                                                                                    unpadded_lens=lens)

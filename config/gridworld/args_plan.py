@@ -7,7 +7,10 @@ def get_args(rest_args):
     parser = argparse.ArgumentParser()
 
     # changes from args_grid_varibad:
-    parser.add_argument('--env_name', default='T-LN-P1-v0', help='environment to train on')
+    parser.add_argument('--env_name', default='PlanningGame-v0', help='environment to train on')
+    """Num rollouts for this env must be 1, since the environment resets its task itself"""
+    parser.add_argument('--max_rollouts_per_task', type=int, default=1, help='number of MDP episodes for adaptation')
+
     parser.add_argument('--input_prev_state', type=boolean_argument, default=True, help='use prev state for rew pred')
     parser.add_argument('--input_action', type=boolean_argument, default=True, help='use prev action for rew pred')
     parser.add_argument('--multihead_for_reward', type=boolean_argument, default=False,

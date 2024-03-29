@@ -40,7 +40,10 @@ class RNNEncoder(nn.Module):
         self.action_encoder = utl.FeatureExtractor(self.action_dim, self.action_embed_dim, F.relu)
         self.reward_encoder = utl.FeatureExtractor(1, self.reward_embed_size, F.relu)
 
-        self.agg_input_dim = self.action_embed_dim + self.state_embed_dim + self.reward_embed_size
+        if self.args.full_transitions:
+            self.agg_input_dim = self.action_embed_dim + (2 * self.state_embed_dim) + self.reward_embed_size
+        else:
+            self.agg_input_dim = self.action_embed_dim + self.state_embed_dim + self.reward_embed_size
 
         self.agg = Aggregator(args, self.agg_input_dim, self.hidden_size, self.latent_dim, self.state_embed_dim, 
             skip_type=self.skip_type, encoder_type=self.encoder_type, agg_type=self.agg_type, st_estimator=self.st_estimator, 
@@ -92,7 +95,7 @@ class RNNEncoder(nn.Module):
 
         return latent_sample, latent_mean, latent_logvar, hidden_state
 
-    def forward(self, actions, states, rewards, hidden_state, return_prior, sample=True, detach_every=None, unpadded_lens=None, return_all_hidden=True):
+    def forward(self, actions, states, rewards, prev_states, hidden_state, return_prior, sample=True, detach_every=None, unpadded_lens=None, return_all_hidden=True):
         """
         Actions, states, rewards should be given in form [sequence_len * batch_size * dim].
         For one-step predictions, sequence_len=1 and hidden_state!=None.
@@ -105,6 +108,7 @@ class RNNEncoder(nn.Module):
         # shape should be: sequence_len x batch_size x hidden_size
         actions = actions.reshape((-1, *actions.shape[-2:]))
         states = states.reshape((-1, *states.shape[-2:]))
+        prev_states = prev_states.reshape((-1, *prev_states.shape[-2:])).to(device)
         rewards = rewards.reshape((-1, *rewards.shape[-2:]))
         if hidden_state is None:
             assert return_prior
@@ -124,7 +128,14 @@ class RNNEncoder(nn.Module):
         ha = self.action_encoder(actions)
         hr = self.reward_encoder(rewards)
         hs_next = self.state_encoder(states) # these are next states, after actions and rewards
-        h = torch.cat((ha, hr, hs_next), dim=2)
+        hs_prev = self.state_encoder(prev_states) # these are previous states, before actions and rewards
+        # print("ha", ha)
+        # print("hr", hr)
+        # print("hs", hs_next)
+        if self.args.full_transitions:
+            h = torch.cat((hs_prev, ha, hr, hs_next), dim=2)
+        else:
+            h = torch.cat((ha, hr, hs_next), dim=2)
 
         agg_outputs, hidden_states = None, None # compute these1 step at a time to save on memory)
         if unpadded_lens is None:

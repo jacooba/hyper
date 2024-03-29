@@ -104,17 +104,8 @@ def get_args(rest_args):
     parser.add_argument('--action_embedding_size', type=int, default=0)
     parser.add_argument('--state_embedding_size', type=int, default=32)
     parser.add_argument('--reward_embedding_size', type=int, default=8)
-    parser.add_argument('--encoder_layers_before_gru', nargs='+', type=int, default=[])
     parser.add_argument('--encoder_gru_hidden_size', type=int, default=64, help='dimensionality of RNN hidden state')
-    parser.add_argument('--encoder_layers_after_gru', nargs='+', type=int, default=[])
     parser.add_argument('--latent_dim', type=int, default=5, help='dimensionality of latent space')
-    # new for aggregator:
-    parser.add_argument('--encoder_layers_after_agg', nargs='+', type=int, default=[])
-    parser.add_argument('--encoder_enc_type', type=str, default="gru", help='type of encoder in Aggregator, e.g. gru, transition, None')
-    parser.add_argument('--encoder_skip_type', type=str, default=None, help='type of skip connection in Aggregator, e.g. enc, None')
-    parser.add_argument('--encoder_agg_type', type=str, default=None, help='type of aggregation in Aggregator, e.g. max, avg, gauss')
-    parser.add_argument('--encoder_st_estimator', type=boolean_argument, default=False, help='whether to pass grad estimate in Aggregator straight through')
-    parser.add_argument('--encoder_max_init_low', type=boolean_argument, default=False, help='whether to start max aggregator state at an arbitrary low constant')
 
     # - decoder: rewards
     parser.add_argument('--decode_reward', type=boolean_argument, default=True, help='use reward decoder')

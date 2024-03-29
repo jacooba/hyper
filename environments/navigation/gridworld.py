@@ -8,6 +8,8 @@ from matplotlib.patches import Rectangle
 import numpy as np
 import torch
 from gym import spaces
+from PIL import Image
+from io import BytesIO
 
 from utils import helpers as utl
 
@@ -206,7 +208,7 @@ class GridNavi(gym.Env):
             if self._env_state[0] == self.starting_state[0] and self._env_state[1] == self.starting_state[1]:
                 state = self._goal[:] # show goal as obs
 
-        return state, reward, done, info
+        return state.copy(), reward, done, info
 
     def task_to_id(self, goals):
         mat = torch.arange(0, self.num_cells ** 2).long().reshape((self.num_cells, self.num_cells))
@@ -257,6 +259,45 @@ class GridNavi(gym.Env):
         else:
             pos = self.id_to_task(pos.argmax(dim=1))
         return pos
+
+    def render(self):
+        num_cells_x = int(self.observation_space.high[0] + 1)
+        num_cells_y = int(self.observation_space.high[1] + 1)
+
+        state = self._env_state.astype(int)
+        goal = self._goal.astype(int)
+
+        plt.figure(figsize=(5, 5))
+        plt.axis('off')
+        
+        # Draw grid
+        for i in range(num_cells_x):
+            for j in range(num_cells_y):
+                rec = Rectangle((i, j), 1, 1, facecolor='w', alpha=0.5, edgecolor='k')
+                plt.gca().add_patch(rec)
+        
+        # Plot state and goal with larger markers and high z-order
+        plt.plot(state[0] + .5, num_cells_y - state[1] - 1 + .5, 'bo', markersize=10, zorder=5)
+        plt.plot(goal[0] + .5, num_cells_y - goal[1] - 1 + .5, 'gx', markersize=15, zorder=5)  # Changed to green for visibility
+
+        # Make it look nice
+        plt.xticks([])
+        plt.yticks([])
+        plt.xlim([0, num_cells_x])
+        plt.ylim([num_cells_y, 0])  # Invert the y-axis limits
+
+        # Save plot to a BytesIO object
+        buffer = BytesIO()
+        plt.savefig(buffer, format='png', bbox_inches='tight')
+        plt.close()
+
+        # Open the image from the buffer and convert to RGB
+        buffer.seek(0)
+        image = Image.open(buffer)
+        image_rgb = np.array(image.convert('RGB'))
+
+        return image_rgb
+
 
     @staticmethod
     def visualise_behaviour(env,
@@ -335,9 +376,10 @@ class GridNavi(gym.Env):
             for step_idx in range(1, env._max_episode_steps + 1):
 
                 if step_idx == 1:
-                    episode_prev_obs[episode_idx].append(start_obs.clone())
+                    prev_obs = start_obs.clone()
                 else:
-                    episode_prev_obs[episode_idx].append(state.clone())
+                    prev_obs = state.clone()
+                episode_prev_obs[episode_idx].append(prev_obs)
 
                 # act
                 _, action, _ = utl.select_action(args=args,
@@ -360,6 +402,7 @@ class GridNavi(gym.Env):
                         action.float().to(device),
                         state,
                         rew_raw.reshape((1, 1)).float().to(device),
+                        prev_obs,
                         hidden_state,
                         return_prior=False)
 

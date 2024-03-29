@@ -1,5 +1,9 @@
 .DS_Store
 *.pyc
+*.mp4
+*.png
+*.csv
+llm_img.png
 __pycache__
 .idea
 mprofile*.dat

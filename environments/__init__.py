@@ -157,9 +157,11 @@ register(
         "indicator_pos": 0,
         "flipped_indicator_pos": None, #can be null for no duplicate flipped indicator
         "correlated_indicator_pos": None, #can be null for no correlated indicator
+        "agreement_indicator_pos": None,
         "success_reward": 4.0,
         "fail_reward": -3.0,
         "persistent_reward": 0.0, # Reward given per time step
+        "latent_dist": None,
     }}
 )
 
@@ -188,9 +190,144 @@ register(
         "indicator_pos": 1,
         "flipped_indicator_pos": None, #can be null for no duplicate flipped indicator
         "correlated_indicator_pos": None, #can be null for no correlated indicator
+        "agreement_indicator_pos": None,
         "success_reward": 4.0,
         "fail_reward": -3.0,
         "persistent_reward": 0.0, # Reward given per time step
+        "latent_dist": None,
+    }}
+)
+
+register(
+    'T-LN-P1-LDp7p5-v0', 
+    entry_point='environments.navigation.t_maze:TMaze',
+    kwargs={'config':
+    {
+        "check_up": 1, # Observation for check / noise pointed up
+        "check_down": -1,
+        "maze_length_upper_bound": None,
+        "pos_enc": False,
+        "wave_encoding_len": None, #3 # Can be null for no not wave-based encoding
+        "intermediate_checks": False,
+        "intermediate_indicators": True, # Whether there are intermediate indicators. (Even if no checks, will increase action dimension)
+        "reset_intermediate_indicators": True, # whether the intermediate indicators change from episode to episode
+        "per_step_reset": True,
+        "final_intermediate_indicator": True, # Whether or not there is an intermediate indicator at then end
+        "check_reward": 0.1,
+        "allow_left": False,
+        "force_final_decision": True, # Whether to force the agent to move up or down at end
+        "force_right": True, # Whether to force the agent to move right (not at end and not for checks)
+        "timeout": 150, # Max steps allowed or null
+        "timeout_reward": 0,
+        "maze_length": 100,
+        "indicator_pos": 1,
+        "flipped_indicator_pos": None, #can be null for no duplicate flipped indicator
+        "correlated_indicator_pos": None, #can be null for no correlated indicator
+        "agreement_indicator_pos": None,
+        "success_reward": 4.0,
+        "fail_reward": -3.0,
+        "persistent_reward": 0.0, # Reward given per time step
+        "latent_dist": (.7,.5),
+    }}
+)
+
+
+register(
+    'T-LN-P1-A50-v0', #"indicator_pos": 1,
+    entry_point='environments.navigation.t_maze:TMaze',
+    kwargs={'config':
+    {
+        "check_up": 1, # Observation for check / noise pointed up
+        "check_down": -1,
+        "maze_length_upper_bound": None,
+        "pos_enc": False,
+        "wave_encoding_len": None, #3 # Can be null for no not wave-based encoding
+        "intermediate_checks": False,
+        "intermediate_indicators": True, # Whether there are intermediate indicators. (Even if no checks, will increase action dimension)
+        "reset_intermediate_indicators": True, # whether the intermediate indicators change from episode to episode
+        "per_step_reset": True,
+        "final_intermediate_indicator": True, # Whether or not there is an intermediate indicator at then end
+        "check_reward": 0.1,
+        "allow_left": False,
+        "force_final_decision": True, # Whether to force the agent to move up or down at end
+        "force_right": True, # Whether to force the agent to move right (not at end and not for checks)
+        "timeout": 150, # Max steps allowed or null
+        "timeout_reward": 0,
+        "maze_length": 100,
+        "indicator_pos": 1,
+        "flipped_indicator_pos": None, #can be null for no duplicate flipped indicator
+        "correlated_indicator_pos": None, #can be null for no correlated indicator
+        "agreement_indicator_pos": 50,
+        "success_reward": 4.0,
+        "fail_reward": -3.0,
+        "persistent_reward": 0.0, # Reward given per time step
+        "latent_dist": None,
+    }}
+)
+
+register(
+    'T-LN-P1-A50-pos-v0', #"indicator_pos": 1, agreement indicator 50, positional enc
+    entry_point='environments.navigation.t_maze:TMaze',
+    kwargs={'config':
+    {
+        "check_up": 1, # Observation for check / noise pointed up
+        "check_down": -1,
+        "maze_length_upper_bound": None,
+        "pos_enc": True,
+        "wave_encoding_len": None, #3 # Can be null for no not wave-based encoding
+        "intermediate_checks": False,
+        "intermediate_indicators": True, # Whether there are intermediate indicators. (Even if no checks, will increase action dimension)
+        "reset_intermediate_indicators": True, # whether the intermediate indicators change from episode to episode
+        "per_step_reset": True,
+        "final_intermediate_indicator": True, # Whether or not there is an intermediate indicator at then end
+        "check_reward": 0.1,
+        "allow_left": False,
+        "force_final_decision": True, # Whether to force the agent to move up or down at end
+        "force_right": True, # Whether to force the agent to move right (not at end and not for checks)
+        "timeout": 150, # Max steps allowed or null
+        "timeout_reward": 0,
+        "maze_length": 100,
+        "indicator_pos": 1,
+        "flipped_indicator_pos": None, #can be null for no duplicate flipped indicator
+        "correlated_indicator_pos": None, #can be null for no correlated indicator
+        "agreement_indicator_pos": 50,
+        "success_reward": 4.0,
+        "fail_reward": -3.0,
+        "persistent_reward": 0.0, # Reward given per time step
+        "latent_dist": None,
+    }}
+)
+
+register(
+    'T-LN-P1-A50-posw-v0', #"indicator_pos": 1, agreement indicator 50, positional enc
+    entry_point='environments.navigation.t_maze:TMaze',
+    kwargs={'config':
+    {
+        "check_up": 1, # Observation for check / noise pointed up
+        "check_down": -1,
+        "maze_length_upper_bound": None,
+        "pos_enc": True,
+        "wave_encoding_len": 2, #3 # Can be null for no not wave-based encoding
+        "intermediate_checks": False,
+        "intermediate_indicators": True, # Whether there are intermediate indicators. (Even if no checks, will increase action dimension)
+        "reset_intermediate_indicators": True, # whether the intermediate indicators change from episode to episode
+        "per_step_reset": True,
+        "final_intermediate_indicator": True, # Whether or not there is an intermediate indicator at then end
+        "check_reward": 0.1,
+        "allow_left": False,
+        "force_final_decision": True, # Whether to force the agent to move up or down at end
+        "force_right": True, # Whether to force the agent to move right (not at end and not for checks)
+        "timeout": 150, # Max steps allowed or null
+        "timeout_reward": 0,
+        "maze_length": 100,
+        "indicator_pos": 1,
+        "flipped_indicator_pos": None, #can be null for no duplicate flipped indicator
+        "correlated_indicator_pos": None, #can be null for no correlated indicator
+        "agreement_indicator_pos": 50,
+        "success_reward": 4.0,
+        "fail_reward": -3.0,
+        "persistent_reward": 0.0, # Reward given per time step
+        "latent_dist": None,
     }}
 )
 
@@ -219,9 +356,11 @@ register(
         "indicator_pos": 1,
         "flipped_indicator_pos": None, # can be null for no duplicate flipped indicator
         "correlated_indicator_pos": None, # can be null for no correlated indicator
+        "agreement_indicator_pos": None,
         "success_reward": 4.0,
         "fail_reward": -3.0,
         "persistent_reward": 0.0, # Reward given per time step
+        "latent_dist": None,
     }}
 )
 
@@ -301,6 +440,34 @@ register(
     }}
 )
 
+register(
+    'PlanningGame-v0',
+    entry_point='environments.navigation.planning_game:MemoryPlanningGame',
+)
+
+register(
+    'PlanningGame-3x3-v0',
+    entry_point='environments.navigation.planning_game:MemoryPlanningGame',
+    kwargs={'maze_size': 3,},
+)
+
+register(
+    'PlanningGame-3x3-xy-v0',
+    entry_point='environments.navigation.planning_game:MemoryPlanningGame',
+    kwargs={'maze_size': 3, 'show_xy': True,},
+)
+
+register(
+    'PlanningGame-3x3-justgoal-v0',
+    entry_point='environments.navigation.planning_game:MemoryPlanningGame',
+    kwargs={'maze_size': 3, 'just_show_whether_at_goal': True,},
+)
+
+register(
+    'PlanningGame-3x3-xy-goalxy-v0',
+    entry_point='environments.navigation.planning_game:MemoryPlanningGame',
+    kwargs={'maze_size': 3, 'show_xy': True, 'show_goal_xy': True,},
+)
 
 register(
     'GridNavi-v0',
@@ -377,16 +544,12 @@ register(
     entry_point='environments.navigation.gridworld:GridNavi',
     kwargs={'num_cells': 7, 'num_steps': 20, "new_state_r":.1, 'starting_state':None},
 )
-# register(
-#     'Grid16-Hall3-H20-rshape-stuck-v0',
-#     entry_point='environments.navigation.gridworld:GridNavi',
-#     kwargs={'num_cells':16, 'hall_with_door_every':3, 'num_steps': 20, "new_state_r":.1, "stuck":True,},
-# )
-# register(
-#     'Grid61-Hall12-H80-rshape-stuck-v0',
-#     entry_point='environments.navigation.gridworld:GridNavi',
-#     kwargs={'num_cells':61, 'hall_with_door_every':12, 'num_steps': 80, "new_state_r":.1, "stuck":True,},
-# )
+
+register(
+    'Grid-20-newr-rands-v0',
+    entry_point='environments.navigation.gridworld:GridNavi',
+    kwargs={'num_cells': 7, 'num_steps': 20, "new_state_r":.1, 'starting_state':None},
+)
 
 
 register(

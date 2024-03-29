@@ -85,7 +85,9 @@ def rollout_varibad(path_to_results, out_path, plot_activations, activation_path
 
     video = not plot_activations
     if video:
-        if "MC" in args.env_name:
+        if "PlanningGame" in args.env_name:
+            renders = []
+        elif "MC" in args.env_name:
             ep_observations = []
         else:
             # hacks to get the video working (not sure why it expects this)
@@ -118,8 +120,13 @@ def rollout_varibad(path_to_results, out_path, plot_activations, activation_path
     success_per_episode = [False]
     total_r = 0
     for step in range(max_episode_steps):
+        prev_state = state.clone()
 
-        ep_observations.append(state[0])
+        if "PlanningGame" in args.env_name:
+            renders.append(envs.envs[0].render())
+        elif "MC" in args.env_name:
+            ep_observations.append(state[0])
+
         with torch.no_grad():
             _, action, _ = utl.select_action(args, policy,
                                           state=state.to(device),
@@ -155,6 +162,7 @@ def rollout_varibad(path_to_results, out_path, plot_activations, activation_path
                                                                                       state,
                                                                                       action,
                                                                                       rew_raw,
+                                                                                      prev_state,
                                                                                       done,
                                                                                       hidden_state)
 
@@ -182,12 +190,24 @@ def rollout_varibad(path_to_results, out_path, plot_activations, activation_path
             if done:
                 break
 
+
     envs.close()
-    if video and "MC" in args.env_name:
-        ep_observations.append(state[0])
-        write_video(ep_observations, os.path.join(out_path,"vid.avi"))
-        print("Total Reward:", total_r)
-        print("Terminal Reward:", rew_raw)
+    if video:
+        if "PlanningGame" in args.env_name:
+            renders.append(envs.envs[0].render())
+            # img = Image.fromarray(renders[-1])
+            # img.save(os.path.join(out_path,"test_img.png"))
+            shape = (renders[0].shape[1], renders[0].shape[0])
+            writer = cv2.VideoWriter(os.path.join(out_path,"vid.avi"), cv2.VideoWriter_fourcc(*"MJPG"), 3, shape)
+            for r in renders:
+                r_bgr = cv2.cvtColor(r, cv2.COLOR_RGB2BGR)
+                writer.write(r_bgr)
+            writer.release()
+        elif "MC" in args.env_name:
+            ep_observations.append(state[0])
+            write_video(ep_observations, os.path.join(out_path,"vid.avi"))
+            print("Total Reward:", total_r)
+            print("Terminal Reward:", rew_raw)
 
     return returns_per_episode[:-1], success_per_episode[:-1]
 
@@ -336,5 +356,3 @@ if __name__ == '__main__':
             plt.savefig(os.path.join(args.activation_path, "step="+str(t)))
             plt.cla()
             plt.clf
-
-

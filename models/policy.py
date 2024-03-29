@@ -411,8 +411,6 @@ class Policy(nn.Module):
         # reset all parameters except for task encoding
         for name, params in self.named_parameters():
             if "task_encoder" not in name:
-                with torch.no_grad():
-                    params.data.copy_(reset_parameters[name])
 
     def reset_hyper_parameters(self, reset_parameters):
         # reset all parameters except for head of hypernet
@@ -578,7 +576,7 @@ class Policy(nn.Module):
                 h = self.apply_multinet_layer([self.net_2_critic_layers[net][i] for net in range(self.num_nets)], h, hyper_input)
                 h = self.activation_function(h)
             return self.apply_multinet_layer(self.net_2_critic_head_layer, h, hyper_input)
-        
+
         # Apply hyper and normal layers
         h, final_weight, final_bias, base_params, final_scaling = self.forward_hyper(inputs, hyper_input, 1,
                                                          self.critic_layers, self.hyper_final_to_critic_weight, self.hyper_final_to_critic_bias,

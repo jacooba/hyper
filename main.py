@@ -17,7 +17,8 @@ from config.metaworld import \
     args_ml10_varibad
 from config.gridworld import \
     args_grid_oracle, args_grid_belief_oracle, args_grid_rl2, args_grid_varibad, args_TLN_varibad, \
-    args_TLNP1_varibad, args_TLSP1_varibad, hall, args_MCLSO_varibad, args_MCLS_varibad, args_MCLSH_varibad, args_MCLSN_varibad
+    args_TLNP1_varibad, args_TLSP1_varibad, hall, args_MCLSO_varibad, args_MCLS_varibad, args_MCLSH_varibad, \
+    args_MCLSN_varibad, args_plan
 from config.mujoco import \
     args_cheetah_dir_oracle, args_cheetah_dir_rl2, args_cheetah_dir_varibad, \
     args_cheetah_vel_oracle, args_cheetah_vel_rl2, args_cheetah_vel_varibad, args_cheetah_vel_avg, \
@@ -96,6 +97,12 @@ def main():
         args, unkown_args = args_TLNP1_varibad.get_args(rest_args)
     elif env == 'T-LS-P1':
         args, unkown_args = args_TLSP1_varibad.get_args(rest_args)
+    elif env == 'T-LN-P1-A50':
+        args, unkown_args = args_TLNP1_varibad.get_args(rest_args)
+        args.env_name = 'T-LN-P1-A50-v0'
+    elif env == "T-LN-P1-LDp7p5":
+        args, unkown_args = args_TLNP1_varibad.get_args(rest_args)
+        args.env_name = "T-LN-P1-LDp7p5-v0"
     elif env == 'hall1':
         args, unkown_args = hall.get_args(rest_args)
         args.env_name = 'Hall-L60H80-rshape-v0'
@@ -122,6 +129,12 @@ def main():
         args, unkown_args = args_MCLSH_varibad.get_args(rest_args)
     elif env == 'MCLSN_varibad':
         args, unkown_args = args_MCLSN_varibad.get_args(rest_args)
+    elif env == 'plan3x3':
+        args, unkown_args = args_plan.get_args(rest_args)
+        args.env_name = 'PlanningGame-3x3-v0'
+    elif env == 'plan3x3justgoal':
+        args, unkown_args = args_plan.get_args(rest_args)
+        args.env_name = 'PlanningGame-3x3-justgoal-v0'
 
     # --- Point Robot ---
     elif env == 'sparse_point_varibad':
@@ -247,6 +260,11 @@ def main():
     if 'metaworld' in args.env_name and 'norm_rew_clip_param' not in args:
         raise ValueError("Looks like you're using MetaWorld. "
                          "Please specify --norm_rew_clip_param in your args!")
+
+    if 'PlanningGame' in args.env_name:
+        assert args.max_rollouts_per_task == 1, "If you want to use the planning game with > 1 rollout per task,"
+                                                "You need to modify the environment to reset graph symbols at end of task"
+                                                "and also reset the agent location at the end of each episode."
 
     # begin training (loop through all passed seeds)
     seed_list = [args.seed] if isinstance(args.seed, int) else args.seed

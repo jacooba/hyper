@@ -51,6 +51,33 @@ MODEL_ORDER = [
         "RNN+HN+BI50p++",
         "RNN+HN+TI_Naive",
         "RNN+HN+TI10p_Naive",
+        "SplAgger",
+        "SplAgger-noRNN",
+        "SplAgger-noRNN-avg",
+        "SplAgger-noRNN-ST",
+        "SplAgger-noSplit",
+        "SplAgger-avg",
+        "SplAgger-avgmax",
+        "SplAgger-softmax",
+        "SplAgger-wsoftmax",
+        "PEARL",
+        "AMRL",
+        "AMRL-noRNN",
+        "CNP",
+        "Max",
+        "Max-ST",
+        "RNN",
+        "PEARL-kl1",
+        "PEARL-klp01",
+        "PEARL-klp0001",
+        "PEARL-klp000001",
+        "PEARL-kl0",
+        "PEARL-vari",
+        "PEARL-prior",
+        "Softmax-t1",
+        "Softmax-tp1",
+        "wSoftmax-t1",
+        "wSoftmax-tp1",
     ]
 # Define colors for plotting
 blue, orange, green, red, purple, brown, pink, grey, yellow = sns.color_palette(n_colors=9)
@@ -74,10 +101,36 @@ COLOR_PALETTE = defaultdict(lambda: black, {
     "RNN+HN+TI_Naive": (blue[0]*1.7, blue[1]*1.6, blue[2]*1.6),
     "RNN+S+TI": (green[0]*1.6, green[1]*1.6, green[2]*1.3),
     "RNN+HN+BI50p++": yellow,
+    "SplAgger": green,
+    "SplAgger-noRNN": brown,
+    "SplAgger-noRNN-avg": (red[0]*1.2, red[1]*1.65, red[2]*1.65),
+    "SplAgger-noSplit": purple,
+    "SplAgger-avg": red,
+    "SplAgger-noRNN-ST": pink,
+    "SplAgger-avgmax": (yellow[0]*1.3, yellow[1]*1.3, yellow[2]*1.3),
+    "SplAgger-softmax": blue,
+    "SplAgger-wsoftmax": (green[0]*1.6, green[1]*1.6, green[2]*1.3),
+    "PEARL": blue,
+    "AMRL": yellow,
+    "AMRL-noRNN": orange,
+    "CNP": red,
+    "Max": pink,
+    "Max-ST": (blue[0]*1.5, blue[1]*1.5, blue[2]*1.1),
+    "RNN": grey,
+    "PEARL-kl1": blue,
+    "PEARL-klp01": purple,
+    "PEARL-klp0001": brown,
+    "PEARL-klp000001": green,
+    "PEARL-kl0": red,
+    "PEARL-vari": orange,
+    "PEARL-prior": pink,
+    "Softmax-t1": blue,
+    "Softmax-tp1": purple,
+    "wSoftmax-t1": orange,
+    "wSoftmax-tp1": yellow,
 })
 for key, value in list(COLOR_PALETTE.items()):
     COLOR_PALETTE[key] = tuple(np.clip(np.array(value), 0, 1))
-
 
 # Define some sets of experiments for easy plotting
 HYPER_LIST = ["RL2", "Varibad", "MultiActivation", "MultiLargeEmbed", "MultiNet", "MultiHead", 
@@ -86,14 +139,9 @@ HYPER_SET = {h for h in HYPER_LIST}
 MODEL_ORDER += HYPER_LIST + ["NO_TASK"]
 SPECIAL_SETS = {"HYPER_SET":HYPER_SET,}
 
-
-# REPO_BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
-
 def simple_name(model_name):
     # optionally simplify the long names of models for plotting:
-
     model_name = model_name.replace("smallPol_smallEm", "small").replace("nonVar", "N").replace("_FullTaskChance0", "").replace("_TaskChance0", "").replace("_pol_XL", "")
-
     return model_name
 
 def get_name_events_info(args, directory):
@@ -234,7 +282,7 @@ def get_clean_data(model_name_2_runs, args):
             # y_label = args.tag.split("/")[-1]
         # but it will not be capitalized properly
         y_label = "Return"
-        x_label = "Frames (k)"
+        x_label = "Frames (M)"
         if "episode_len" in args.tag:
                 y_label = "Episode Length"
         if "success" in args.tag.lower() and "test" in args.tag.lower():
@@ -299,10 +347,10 @@ def get_clean_data(model_name_2_runs, args):
                 zipped_events = [zipped_events[int(round(i*scale_down_factor))] for i in range(0, args.max_events)]
             for scalar_event, smoothed_y in zipped_events:
                 if args.step is None or (scalar_event.step <= (args.step*1000)):
-                    x_step = scalar_event.step/1000
+                    x_step = scalar_event.step/1000000
                     if args.shift_warmups and ("warmups" in full_name.lower()):
                         num_frames_warm = num_warmups(full_name) * args.frames_per_update
-                        x_step -= num_frames_warm/1000
+                        x_step -= num_frames_warm/1000000
                     event_dict = {legend_name: full_name, 
                                   x_label: x_step, 
                                   y_label: smoothed_y, 
@@ -340,10 +388,23 @@ def plot_runs(data, model_2_best_performances, model_2_best_LR, model_to_fullnam
     # However, This created issues displaying the lr and AMRL only used Adam optimizer, so we do this instead:
     style = "lr" if ("lr" in data[0]) and (args.lr or not args.best) else None
     size = None
-    # dataf[y_label] = dataf[y_label].rolling(max(1,int(len(data)*smoothing_sz))).mean()
+
     plot = sns.lineplot(x=x_label, y=y_label, estimator=estimator, units=units, markers=True, 
-        style=style, size=size, hue=legend_name, hue_order=fullname_model_order,
+        style=style, size=size, hue=legend_name, hue_order=reversed(fullname_model_order), # Reverse so that items higher in legend are plotted on top
         data=pd.DataFrame(data), ci=ci, palette=COLOR_PALETTE)
+
+    # Remove items from the legend, optionally, and deal with reversal:
+    # Get handles and labels
+    handles, labels = plot.get_legend_handles_labels()
+    labels_to_remove = {}
+    # labels_to_remove = {"RNN", "SplAgger", "AMRL", "SplAgger-avg", "SplAgger-avgmax", "SplAgger-softmax", "SplAgger-wsoftmax",}
+    new_handles = []
+    new_labels = []
+    for handle, label in zip(handles, labels):
+        if label not in labels_to_remove:
+            new_handles.append(handle)
+            new_labels.append(label)
+    plt.legend(new_handles[::-1], new_labels[::-1]) # Undo reversed in hue_order
 
     if args.log_scale:
         plot.set_yscale('log')
@@ -363,14 +424,16 @@ def plot_runs(data, model_2_best_performances, model_2_best_LR, model_to_fullnam
     # uncomment for title
     # if args.title: 
     #     fig.suptitle(args.tag, fontsize=16) # Or set directory name as title if not tag
-    fig.set_size_inches(7, 4.5)
+    fig.set_size_inches(4, 2.6) # useful for much smaller plots in final paper
+    # fig.set_size_inches(7, 4.5)
     if args.out is None:
         OUT_PATH_PNG = '/mnt/jabeckstorage/ray_results/current_plot.png'
         OUT_PATH_CSV = '/mnt/jabeckstorage/ray_results/current_plot.csv'
     else:
         OUT_PATH_PNG = os.path.normpath(args.out)+".png"
         OUT_PATH_CSV = os.path.normpath(args.out)+".csv"
-    plt.savefig(OUT_PATH_PNG, dpi=500, bbox_inches="tight")
+    plt.savefig(OUT_PATH_PNG, dpi=1000, bbox_inches="tight") # useful for much smaller plots in final paper
+    # plt.savefig(OUT_PATH_PNG, dpi=500, bbox_inches="tight")
 
     # write out csv of overall metrics
     if args.final_r:

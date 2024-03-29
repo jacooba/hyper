@@ -210,7 +210,7 @@ def get_latent_for_policy(args, latent_sample=None, latent_mean=None, latent_log
     return latent
 
 
-def update_encoding(encoder, next_obs, action, reward, done, hidden_state):
+def update_encoding(encoder, next_obs, action, reward, prev_obs, done, hidden_state):
     # reset hidden state of the recurrent net when we reset the task
     if done is not None:
         hidden_state = encoder.reset_hidden(hidden_state, done)
@@ -219,6 +219,7 @@ def update_encoding(encoder, next_obs, action, reward, done, hidden_state):
         latent_sample, latent_mean, latent_logvar, hidden_state = encoder(actions=action.float(),
                                                                           states=next_obs,
                                                                           rewards=reward,
+                                                                          prev_states=prev_obs,
                                                                           hidden_state=hidden_state,
                                                                           return_prior=False)
 
@@ -276,6 +277,7 @@ def recompute_embeddings(
         ts, tm, tl, h = encoder(policy_storage.actions.float()[i:i + 1],
                                 policy_storage.next_state[i:i + 1],
                                 policy_storage.rewards_raw[i:i + 1],
+                                policy_storage.prev_state[i:i + 1],
                                 h,
                                 sample=sample,
                                 return_prior=False,
@@ -383,8 +385,12 @@ def int_or_none(value):
     return None if value.lower()=="none" else int(value)
 
 def float_or_none(value):
-    """Convert a string value to int or None."""
+    """Convert a string value to float or None."""
     return None if value.lower()=="none" else float(value)
+
+def str_or_none(value):
+    """Convert a string value to str or None."""
+    return None if (value is None or value.lower()=="none") else str(value)
 
 def get_task_dim(args):
     env, _ = make_env(args)

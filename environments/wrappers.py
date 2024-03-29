@@ -29,7 +29,8 @@ class VariBadWrapper(gym.Wrapper):
     def __init__(self,
                  env,
                  episodes_per_task,
-                 env_type
+                 env_type,
+                 args
                  ):
         """
         Wrapper, creates a multi-episode (BA)MDP around a one-episode MDP. Automatically deals with
@@ -41,6 +42,7 @@ class VariBadWrapper(gym.Wrapper):
         super().__init__(env)
 
         self.env_type = env_type
+        self.args = args
 
         # make sure we can call these attributes even if the orig env does not have them
         if not hasattr(self.env.unwrapped, 'task_dim'):

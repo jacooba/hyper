@@ -18,7 +18,7 @@ def get_args(rest_args):
                              'categorical (predict p(r=1|s) but use softmax instead of sigmoid)'
                              'deterministic (treat as regression problem)')
     parser.add_argument('--action_embedding_size', type=int, default=8)
-    parser.add_argument('--policy_num_steps', type=int, default=700, # This may be bad; have not tried yet
+    parser.add_argument('--policy_num_steps', type=int, default=700,
                         help='number of env steps to do (per process) before updating')
 
     # take other args from args_grid_varibad

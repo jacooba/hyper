@@ -22,7 +22,7 @@ def make_env(env_id, seed, rank, episodes_per_task, mode, args, **kwargs):
             env.seed(seed + rank)
         if str(env.__class__.__name__).find('TimeLimit') >= 0:
             env = TimeLimitMask(env)
-        env = VariBadWrapper(env=env, episodes_per_task=episodes_per_task, env_type=env_type)
+        env = VariBadWrapper(env=env, episodes_per_task=episodes_per_task, env_type=env_type, args=args)
         if env_id.startswith('metaworld'):
             if args.sparse_metaworld_rewards:
                 env = MetaWorldSparseRewardWrapper(env=env)

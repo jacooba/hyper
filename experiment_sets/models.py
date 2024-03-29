@@ -40,6 +40,18 @@ def freeze_vae_warmup(exp_dict):
     new_dict["freeze_vae_during_warmup"] = True 
     return new_dict
 
+def vis_10(exp_dict):
+    new_dict = exp_dict.copy()
+    new_dict["exp_label"] = new_dict["exp_label"] + "_vis10"
+    new_dict["vis_interval"] = 10 
+    return new_dict
+
+def policy_num_steps(exp_dict, pns):
+    new_dict = exp_dict.copy()
+    new_dict["exp_label"] = new_dict["exp_label"] + "_pns" + str(pns)
+    new_dict["policy_num_steps"] = pns 
+    return new_dict
+
 def ti(exp_dict, weight, base_net=False, stopgrad=False, hard=False):
     new_dict = exp_dict.copy()
     if base_net:
@@ -156,6 +168,15 @@ def make_nonVarNP(exp_dict): # makes method non-variational
     new_dict["precollect_len"] = 0
     return new_dict
 
+def make_nonVarNPP(exp_dict): # makes method non-variational
+    new_dict = exp_dict.copy()
+    new_dict["exp_label"] = exp_dict["exp_label"] + "_nonVarNPP"
+    new_dict["disable_stochasticity_in_latent"] = True
+    new_dict["sample_embeddings"] = False # This is the default, but just be clear
+    new_dict["precollect_len"] = 0
+    new_dict["pretrain_len"] = 0
+    return new_dict
+    
 def make_var(exp_dict): # makes method variational
     new_dict = exp_dict.copy()
     new_dict["exp_label"] = exp_dict["exp_label"] + "_var"
@@ -167,6 +188,12 @@ def truncate(exp_dict, trunc_len=50):
     new_dict = exp_dict.copy()
     new_dict["exp_label"] = exp_dict["exp_label"] + "_trunc" + str(int(trunc_len))
     new_dict["tbptt_stepsize"] = trunc_len
+    return new_dict
+
+def make_sum(exp_dict):
+    new_dict = exp_dict.copy()
+    new_dict["exp_label"] = exp_dict["exp_label"] + "_sum"
+    new_dict["encoder_agg_type"] = "sum"
     return new_dict
 
 def make_avg(exp_dict):
@@ -185,6 +212,18 @@ def make_max(exp_dict):
     new_dict = exp_dict.copy()
     new_dict["exp_label"] = exp_dict["exp_label"] + "_max"
     new_dict["encoder_agg_type"] = "max"
+    return new_dict
+
+def make_am(exp_dict):
+    new_dict = exp_dict.copy()
+    new_dict["exp_label"] = exp_dict["exp_label"] + "_am"
+    new_dict["encoder_agg_type"] = "am"
+    return new_dict
+
+def make_softmax(exp_dict):
+    new_dict = exp_dict.copy()
+    new_dict["exp_label"] = exp_dict["exp_label"] + "_softmax"
+    new_dict["encoder_agg_type"] = "softmax"
     return new_dict
 
 def make_max_norm(exp_dict):
@@ -211,10 +250,58 @@ def make_trans(exp_dict):
     new_dict["encoder_enc_type"] = "transition"
     return new_dict
 
+def noRNN(exp_dict):
+    new_dict = exp_dict.copy()
+    new_dict["exp_label"] = exp_dict["exp_label"] + "_noRNN"
+    new_dict["encoder_enc_type"] = None
+    return new_dict
+
+def mru(exp_dict, norm):
+    new_dict = exp_dict.copy()
+    new_dict["exp_label"] = new_dict["exp_label"] + "_mru"
+    new_dict["encoder_enc_type"] = "mru"
+    new_dict["mru_norm"] = norm
+    new_dict["exp_label"] = new_dict["exp_label"] + "_norm" + str(norm)
+    return new_dict
+
+def lstm(exp_dict):
+    new_dict = exp_dict.copy()
+    new_dict["exp_label"] = new_dict["exp_label"] + "_lstm"
+    new_dict["encoder_enc_type"] = "lstm"
+    return new_dict
+
+def rnn_sz(exp_dict, sz):
+    new_dict = exp_dict.copy()
+    new_dict["exp_label"] = exp_dict["exp_label"] + "_" + str(sz)
+    new_dict["encoder_gru_hidden_size"] = sz
+    return new_dict
+
 def make_st(exp_dict):
     new_dict = exp_dict.copy()
     new_dict["exp_label"] = exp_dict["exp_label"] + "_ST"
     new_dict["encoder_st_estimator"] = True
+    return new_dict
+
+def make_transformer(exp_dict, token_sz="default", num_layers="default", num_heads="default", mem_sz="default"):
+    new_dict = exp_dict.copy()
+    new_dict["exp_label"] = exp_dict["exp_label"] + "_transformer"
+    new_dict["encoder_enc_type"] = "transformer"
+    if token_sz != "default":
+        new_dict["transformer_token_sz"] = token_sz
+        token_sz = None if token_sz is None else int(token_sz)
+        new_dict["exp_label"] += f"_TokenSZ={token_sz}"
+    if num_layers != "default":
+        new_dict["transformer_num_layers"] = num_layers
+        num_layers = None if num_layers is None else int(num_layers)
+        new_dict["exp_label"] += f"_NTLayers={num_layers}"
+    if num_heads != "default":
+        new_dict["transformer_num_heads"] = num_heads
+        num_heads = None if num_heads is None else int(num_heads)
+        new_dict["exp_label"] += f"_NHeads={num_heads}"
+    if mem_sz != "default":
+        new_dict["transformer_mem_sz"] = mem_sz
+        mem_sz = None if mem_sz is None else int(mem_sz)
+        new_dict["exp_label"] += f"_TMemSz={mem_sz}"
     return new_dict
 
 def make_learn_init_state(exp_dict):
@@ -242,9 +329,59 @@ def add_name(exp_dict, add_str):
     new_dict["exp_label"] = new_dict["exp_label"] + "_" + add_str
     return new_dict
 
-def set_name(exp_dict, set_str):
+def set_latents(exp_dict, sz):
     new_dict = exp_dict.copy()
-    new_dict["exp_label"] = set_str
+    new_dict["policy_latent_embedding_dim"] = sz
+    new_dict["latent_dim"] = sz//2
+    new_dict["exp_label"] = new_dict["exp_label"] + "_Lsz" + str(sz)
+    return new_dict
+
+def set_ldim(exp_dict, sz):
+    new_dict = exp_dict.copy()
+    new_dict["latent_dim"] = sz//2
+    new_dict["exp_label"] = new_dict["exp_label"] + "_L" + str(sz)
+    return new_dict
+
+def set_ent(exp_dict, policy_entropy_coef):
+    new_dict = exp_dict.copy()
+    new_dict["policy_entropy_coef"] = policy_entropy_coef
+    new_dict["exp_label"] = new_dict["exp_label"] + "_e" + str(policy_entropy_coef)
+    return new_dict
+
+def set_wavg_temp(exp_dict, wavg_temp):
+    new_dict = exp_dict.copy()
+    new_dict["wavg_temp"] = wavg_temp
+    new_dict["exp_label"] = new_dict["exp_label"] + "_t" + str(wavg_temp)
+    return new_dict
+
+def set_softmax_temp(exp_dict, softmax_temp):
+    new_dict = exp_dict.copy()
+    new_dict["softmax_temp"] = softmax_temp
+    new_dict["exp_label"] = new_dict["exp_label"] + "_smaxt" + str(softmax_temp)
+    return new_dict
+
+def set_kl_weight(exp_dict, kl_weight):
+    new_dict = exp_dict.copy()
+    new_dict["kl_weight"] = kl_weight
+    new_dict["exp_label"] = new_dict["exp_label"] + "_kl" + str(kl_weight)
+    return new_dict
+
+def set_layers_after_rnn(exp_dict, size):
+    layer_sizes = {
+        "S": "24 25", # This is smaller than default (no layers after RNN) since RNN size is generally 256
+    }
+    new_dict = exp_dict.copy()
+    new_dict["exp_label"] = new_dict["exp_label"] + "_" + size
+    new_dict["encoder_layers_after_gru"] = layer_sizes[size]
+    return new_dict
+
+def invariant_init(exp_dict, adjust_weights):
+    new_dict = exp_dict.copy()
+    new_dict["invariant_init"] = True
+    new_dict["invariant_init_adjusts_weights"] = adjust_weights
+    new_dict["exp_label"] = new_dict["exp_label"] + "_InvInit"
+    if adjust_weights:
+        new_dict["exp_label"] = new_dict["exp_label"] + "_adjustWeights"
     return new_dict
 
 def make_pol_size(size, exp_dict):
@@ -312,12 +449,39 @@ def state_sz(exp_dict, sz):
         new_dict["policy_state_embedding_dim"] = sz
     return new_dict
 
+def mem_sz(exp_dict, sz):
+    new_dict = exp_dict.copy()
+    new_dict["exp_label"] = new_dict["exp_label"] + "_memSZ"+str(sz)
+    new_dict["encoder_gru_hidden_size"] = sz
+    return new_dict
+
+def layers_after_enc(exp_dict, layers_str):
+    new_dict = exp_dict.copy()
+    new_dict["exp_label"] = new_dict["exp_label"] + "_afterEncL"+str(layers_str)
+    new_dict["encoder_layers_after_gru"] = layers_str
+    return new_dict
+
 def make_RL2(exp_dict): # useful to turn VariBAD into RL2 with fixed LR. Note: still variational
     new_dict = exp_dict.copy()
     new_dict["exp_label"] = "RL2_" + exp_dict["exp_label"]
     new_dict["disable_decoder"] = True 
     new_dict["rlloss_through_encoder"] = True
     new_dict["norm_latent_for_policy"] = False
+    return new_dict
+
+def make_EtoE_VI(exp_dict): # makes method variational, but end-to-end
+    new_dict = exp_dict.copy()
+    new_dict["exp_label"] = exp_dict["exp_label"] + "_VIE2E"
+    new_dict["disable_stochasticity_in_latent"] = False
+    new_dict["sample_embeddings"] = True
+    new_dict["precollect_len"] = 0
+    new_dict["pretrain_len"] = 0
+    new_dict["disable_decoder"] = True 
+    new_dict["rlloss_through_encoder"] = True
+    new_dict["norm_latent_for_policy"] = False
+    new_dict["decode_reward"] = False
+    new_dict["decode_state"] = False
+    new_dict["decode_task"] = False
     return new_dict
 
 def make_lr_decay(exp_dict): # useful to turn VariBAD into RL2 with fixed LR. Note: still variational
@@ -345,6 +509,10 @@ def make_metaWConst_coeff(exp_dict, coeff, c):
     new_dict["meta_wconst"] = c 
     return new_dict
 
+def set_name(exp_dict, set_str):
+    new_dict = exp_dict.copy()
+    new_dict["exp_label"] = set_str
+    return new_dict
 
 # Define dictionaries for models:
 
@@ -384,7 +552,8 @@ RL2_HyperNet_init_b = {"exp_label": "RL2_HyperNet_init_b",
         }
 
 
-# Adjust models (using functions above) to test initializations to appropriate sizes, and to test task inference and end-to-end supervision:
+
+# Adjust models (using functions above) to test initializations, set appropriate sizes, and test task inference and end-to-end supervision:
 
 VI = set_name(make_pol_size("XL", VARIBAD), "VI") # Varibad baseline
 VI_HN = set_name(make_pol_size("XL", make_varibad(HyperNet_init_b)), "VI+HN")
@@ -418,6 +587,57 @@ TI_p_HN_Grid = set_name(ti(num_full_warmups(full_task_chance(make_pol_size("XL",
 BI_pp_HN = set_name(ti(num_full_warmups(full_task_chance(make_pol_size("XL", make_varibad(HyperNet_init_b)), 0), 563), 1., base_net=True, stopgrad=True, hard=False), "BI++HN")
 
 Multi_HN = set_name(make_multi(make_pol_size("XL", make_varibad(HyperNet_init_b))), "Multi+HN") # multi-task upper bound
-
 # Note: You can use vae_lr() to adjust the LR of VAEs in models with VAEs to save them with different names.
 
+
+
+
+# Adjust models using functions to test different sequence models, for the SplAgger paper (Beck et al., 2024):
+
+# Make sure the default RNN model has no pre-training and no pre-collect phase.
+# Note that in the context of the SplAgger paper, this default RNN_HN model is referred to as just RNN.
+RNN_HN = set_name(make_nonVarNPP(RNN_HN), "RNN+HN")
+
+SplAgger = set_name(make_skip(make_max(RNN_HN)), "SplAgger")
+
+Max = set_name(noRNN(make_max(RNN_HN)), "Max") # Note: This also has no skip connection; skip makes little sense without RNN
+Max_ST = set_name(noRNN(make_st(make_max(RNN_HN))), "Max-ST")
+
+# AMRL aggregation as in Beck et al., 2020
+AMRL = set_name(make_max(make_st(make_skip(RNN_HN))), "AMRL")
+AMRL_noRNN = set_name(noRNN(make_max(make_st(RNN_HN))), "AMRL-noRNN")
+
+# Avg aggregation as in a Conditional Neural Process (Garnelo et al., 2018)
+CNP_HN = set_name(noRNN(make_avg(RNN_HN)), "CNP+HN") # Note: Variational Inference Required for non-conditional NP
+
+# LSTM with invariant initialization
+LSTM_InvInit_HN = set_name(invariant_init(lstm(RNN_HN), adjust_weights=True), "InvInit")
+# Transformer. Note: when using this model, set "policy_num_steps": 175 in the shared arguments for the experiment set
+Transformer_HN = set_name(make_transformer(RNN_HN, token_sz=16, mem_sz=None), "Transformer")
+
+# Gaussian Aggregation, as in PEARL (Rakelly et al., 2019). Variational Inference Required.
+PEARL = set_name(set_kl_weight(make_EtoE_VI(PEARL_HN), .000001), "PEARL")
+PEARL_vari = set_name(make_gauss(VI_HN), "PEARL-vari")
+# Tuning of PEARL KL:
+PEARL_kl1_HN = set_name(set_kl_weight(make_EtoE_VI(PEARL_HN), 1), "PEARL-kl1")
+PEARL_klp01_HN = set_name(set_kl_weight(make_EtoE_VI(PEARL_HN), .01), "PEARL-klp01")
+PEARL_klp0001_HN = set_name(set_kl_weight(make_EtoE_VI(PEARL_HN), .0001), "PEARL-klp0001")
+PEARL_klp000001_HN = set_name(set_kl_weight(make_EtoE_VI(PEARL_HN), .000001), "PEARL-klp000001")
+PEARL_kl0_HN = set_name(set_kl_weight(make_EtoE_VI(PEARL_HN), 0), "PEARL-kl0")
+# Note vis_10(PEARL) was used to save the visualization more frequently
+
+# SplAgger with different binary operators:
+SplAgger_avg = set_name(make_skip(make_avg(RNN_HN)), "SplAgger-avg")
+SplAgger_avgmax = set_name(make_skip(make_am(RNN_HN)), "SplAgger-avgmax")
+SplAgger_softmax = set_name(make_skip(set_softmax_temp(make_softmax(RNN_HN), .1)), "SplAgger-softmax")
+SplAgger_wsoftmax = set_name(make_skip(set_wavg_temp(make_wavg(RNN_HN), .1)), "SplAgger-wsoftmax")
+SplAgger_wavg = set_name(make_skip(make_wavg(RNN_HN)), "SplAgger-wavg")
+# Tuning of temperature:
+wsoftmax_t1 = set_name(set_wavg_temp(noRNN(make_wavg(RNN_HN)), 1), "wsoftmax-t1")
+wsoftmax_tp1 = set_name(set_wavg_temp(noRNN(make_wavg(RNN_HN)), .1), "wsoftmax-tp1")
+SOFTMAX_t1 = set_name(noRNN(set_softmax_temp(make_softmax(RNN_HN), 1)), "softmax-t1")
+SOFTMAX_tp1 = set_name(noRNN(set_softmax_temp(make_softmax(RNN_HN), .1)), "softmax-tp1")
+# More SplAgger variants
+SplAgger_noRNN = set_name(noRNN(make_max(RNN_HN)), "SplAgger-noRNN")
+SplAgger_noRNN_avg = set_name(noRNN(make_avg(RNN_HN)), "SplAgger-noRNN-avg")
+SplAgger_noSplit = set_name(make_max(RNN_HN), "SplAgger-noSplit")

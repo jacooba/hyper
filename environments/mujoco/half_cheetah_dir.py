@@ -188,9 +188,11 @@ class HalfCheetahDirSparseEnv(HalfCheetahDirEnv):
             for step_idx in range(1, env._max_episode_steps + 1):
 
                 if step_idx == 1:
-                    episode_prev_obs[episode_idx].append(start_state.clone())
+                    prev_obs = start_state.clone()
                 else:
-                    episode_prev_obs[episode_idx].append(state.clone())
+                    prev_obs = state.clone()
+                episode_prev_obs[episode_idx].append(prev_obs)
+
                 # act
                 latent = utl.get_latent_for_policy(args,
                                                    latent_sample=curr_latent_sample,
@@ -208,7 +210,7 @@ class HalfCheetahDirSparseEnv(HalfCheetahDirEnv):
                 if encoder is not None:
                     # update task embedding
                     curr_latent_sample, curr_latent_mean, curr_latent_logvar, hidden_state = encoder(
-                        action.reshape(1, -1).float().to(device), state, rew.reshape(1, -1).float().to(device),
+                        action.reshape(1, -1).float().to(device), state, rew.reshape(1, -1).float().to(device), prev_obs,
                         hidden_state, return_prior=False)
 
                     episode_latent_samples[episode_idx].append(curr_latent_sample[0].clone())

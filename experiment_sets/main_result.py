@@ -45,6 +45,7 @@ GPU_EXPERIMENT_SETS.append(
         VI_HN,
         RNN_HN,
         RNN,
+        SplAgger,
         ]
     })
 
