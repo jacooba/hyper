@@ -56,6 +56,8 @@ def get_args(rest_args):
         '\nOtherwise defaults to policy_initialisation, which may change other layers too.')
 
     # new for aggregator:
+    parser.add_argument('--encoder_layers_before_gru', nargs='+', type=int, default=[])
+    parser.add_argument('--encoder_layers_after_gru', nargs='+', type=int, default=[])
     parser.add_argument('--encoder_layers_after_agg', nargs='+', type=int, default=[])
     parser.add_argument('--encoder_enc_type', type=str, default="gru", help='type of encoder in Aggregator, e.g. gru, transition, amu, None')
     parser.add_argument('--encoder_skip_type', type=str, default=None, help='type of skip connection in Aggregator, e.g. enc, None')
