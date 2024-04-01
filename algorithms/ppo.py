@@ -206,7 +206,7 @@ class PPO:
             else:
               policy_opt_to_vae = None
             for _ in range(self.args.num_vae_updates):
-                assert not args.disable_decoder, "Decoder loss needed to train task encoder."
+                assert not self.args.disable_decoder, "Decoder loss needed to train task encoder."
                 compute_vae_loss(update=True, encoded_task_func=self.get_encoded_task_func(), policy_optimiser=policy_opt_to_vae)
 
         if self.lr_scheduler_policy is not None:
