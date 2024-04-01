@@ -614,13 +614,13 @@ def main():
     parser.add_argument("--normalized_norm", action='store_true', help="Compute norm of the observations for one run, and normalize over time.", default=False)
     parser.add_argument("--norm", action='store_true', help="Compute output norms.", default=False)
     parser.add_argument("--no_log", action='store_true', help="Do not plot in log scale", default=False)
-    parser.add_argument("--out_name", type=str, help="filename for output saved in plts.", default="snr")
+    parser.add_argument("--out_name", type=str, help="filename for output saved in plts.", default="analysis")
     parser.add_argument("--lower_ylim", type=float, help="Lower ylim for plot. E.g. 10e-30.", default=None)
     parser.add_argument("--upper_ylim", type=float, help="Upper ylim for plot. E.g. 1.", default=None)
     parser.add_argument("--sort", action='store_true', help="Whether to sort by performance for the legend on lineplots", default=False)
     parser.add_argument("--skip_ST", action='store_true', help="Whether to skip models with \"ST\" in the name if calculating SNR, since straight through connections have the same SNR as without", default=False)
     parser.add_argument("--title", action='store_true', help="Show title", default=False)
-    parser.add_argument('--out_dir', type=str, help='the base log dir on machine', default=os.path.dirname(os.path.realpath(__file__)))
+    parser.add_argument('--out_dir', type=str, help='the base log dir on machine', default=os.path.join(os.path.dirname(os.path.realpath(__file__)), "data/"))
 
     args = parser.parse_args()
 

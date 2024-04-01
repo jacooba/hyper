@@ -64,21 +64,21 @@ The script, `run_experiments.py`, automatically runs commands using the docker f
 
 The main training loop itself can be found in `metalearner.py`, the hypernetwork is in `policy.py`, and added supervision for task inference is in `ppo.py`.
 
-After training, `visualize_runs.py` can be used for plotting. To automatically plot all results for a set of experiments, you can also use the `run_experiments.py` script. Plots will be saved in `hyper//data/plts/` by default.
+After training, `visualize_runs.py` can be used for plotting. To automatically plot all results for a set of experiments, you can also use the `run_experiments.py` script. Plots will be saved in `hyper/data/plts/` by default.
 
 *Example usage:*
 ```
 python3 run_experiments.py main_results --plot
 ```
 
-To measure the different types of gradient decay for different aggregators in the SplAgger analysis, you can use `visualize_analysis.py`. (Currently set up for CPU usage.)
+To measure the different types of gradient decay for different aggregators in the SplAgger analysis, you can use `visualize_analysis.py`. The plot will be saved as `hyper/data/analysis.png` by default. (Currently set up for CPU usage.)
 
 *Example usage:*
 ```
 /home/jaceck/hyper/run_cpu.sh mujoco150 0 python /home/jaceck/hyper/visualize_analysis.py --grad --noise --no_log
-/home/jaceck/hyper/run_cpu.sh mujoco150 0 python /home/jaceck/hyper/visualize_analysis.py  --param_grad --noise --no_log
-/home/jaceck/hyper/run_cpu.sh mujoco150 0 python /home/jaceck/hyper/visualize_analysis.py  --inputs_grad --noise
-/home/jaceck/hyper/run_cpu.sh mujoco150 0 python /home/jaceck/hyper/visualize_analysis.py  --perm_diff --no_log
+/home/jaceck/hyper/run_cpu.sh mujoco150 0 python /home/jaceck/hyper/visualize_analysis.py --param_grad --noise --no_log
+/home/jaceck/hyper/run_cpu.sh mujoco150 0 python /home/jaceck/hyper/visualize_analysis.py --inputs_grad --noise
+/home/jaceck/hyper/run_cpu.sh mujoco150 0 python /home/jaceck/hyper/visualize_analysis.py --perm_diff --no_log
 ```
 
 ### Comments
