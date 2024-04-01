@@ -11,7 +11,7 @@ CPU_EXPERIMENT_SETS = [] # This will be a list of sets of experiments for cpu on
 GPU_EXPERIMENT_SETS.append(
     {
     "set_name": "chedir",  # Note: name for experiment set. Not used; just for debug and convenience.
-    "dir_name": "main_result",       # directory for experiments, can be same across sets so long as env changes
+    "dir_name": "main_results",       # directory for experiments, can be same across sets so long as env changes
     # mujoco version:
     "mujoco_version": 150,                   # Can leave blank and a default will be assumed
     # shared arguments:
