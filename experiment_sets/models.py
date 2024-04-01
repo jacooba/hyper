@@ -608,22 +608,22 @@ AMRL = set_name(make_max(make_st(make_skip(RNN_HN))), "AMRL")
 AMRL_noRNN = set_name(noRNN(make_max(make_st(RNN_HN))), "AMRL-noRNN")
 
 # Avg aggregation as in a Conditional Neural Process (Garnelo et al., 2018)
-CNP_HN = set_name(noRNN(make_avg(RNN_HN)), "CNP+HN") # Note: Variational Inference Required for non-conditional NP
+CNP = set_name(noRNN(make_avg(RNN_HN)), "CNP+HN") # Note: Variational Inference Required for non-conditional NP
 
 # LSTM with invariant initialization
-LSTM_InvInit_HN = set_name(invariant_init(lstm(RNN_HN), adjust_weights=True), "InvInit")
+LSTM_InvInit = set_name(invariant_init(lstm(RNN_HN), adjust_weights=True), "InvInit")
 # Transformer. Note: when using this model, set "policy_num_steps": 175 in the shared arguments for the experiment set
-Transformer_HN = set_name(make_transformer(RNN_HN, token_sz=16, mem_sz=None), "Transformer")
+Transformer = set_name(make_transformer(RNN_HN, token_sz=16, mem_sz=None), "Transformer")
 
 # Gaussian Aggregation, as in PEARL (Rakelly et al., 2019). Variational Inference Required.
-PEARL = set_name(set_kl_weight(make_EtoE_VI(PEARL_HN), .000001), "PEARL")
+PEARL = set_name(set_kl_weight(make_EtoE_VI(make_gauss(VI_HN)), .000001), "PEARL")
 PEARL_vari = set_name(make_gauss(VI_HN), "PEARL-vari")
 # Tuning of PEARL KL:
-PEARL_kl1_HN = set_name(set_kl_weight(make_EtoE_VI(PEARL_HN), 1), "PEARL-kl1")
-PEARL_klp01_HN = set_name(set_kl_weight(make_EtoE_VI(PEARL_HN), .01), "PEARL-klp01")
-PEARL_klp0001_HN = set_name(set_kl_weight(make_EtoE_VI(PEARL_HN), .0001), "PEARL-klp0001")
-PEARL_klp000001_HN = set_name(set_kl_weight(make_EtoE_VI(PEARL_HN), .000001), "PEARL-klp000001")
-PEARL_kl0_HN = set_name(set_kl_weight(make_EtoE_VI(PEARL_HN), 0), "PEARL-kl0")
+PEARL_kl1 = set_name(set_kl_weight(make_EtoE_VI(PEARL), 1), "PEARL-kl1")
+PEARL_klp01 = set_name(set_kl_weight(make_EtoE_VI(PEARL), .01), "PEARL-klp01")
+PEARL_klp0001 = set_name(set_kl_weight(make_EtoE_VI(PEARL), .0001), "PEARL-klp0001")
+PEARL_klp000001 = set_name(set_kl_weight(make_EtoE_VI(PEARL), .000001), "PEARL-klp000001")
+PEARL_kl0 = set_name(set_kl_weight(make_EtoE_VI(PEARL), 0), "PEARL-kl0")
 # Note vis_10(PEARL) was used to save the visualization more frequently
 
 # SplAgger with different binary operators:
