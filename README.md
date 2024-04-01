@@ -53,32 +53,32 @@ Finally, the T-Maze environments, Minecraft environments, aggregators in `aggreg
 
 The experiments can be found in `experiment_sets/`. The models themselves are defined in `models.py`. Main results on initialization methods (Beck et al., 2022) can be found in `init_main_results.py`. Main results on supervision (Beck et al., 2023) and an example usage of SplAgger (Beck et al., 2024) can be found in `main_results.py`. Analysis and the remaining environments can be found in `analysis.py` and `all_envs.py`, respectively.
 
-`run_experiments.py` can be used to build dockers, launch experiments, and start new experiments when there is sufficient space.
+`run_experiments.py` can be used to build dockers, launch experiments, and start new experiments when there is sufficient space. Results will be saved in `hyper/data/` by default.
 
 *Example usage:*
 ```
-python3 run_experiments.py main_results --shuffle --gpu_free 0-7 --experiments_per_gpu 3 |& tee log.txt
+python3 run_experiments.py main_results --shuffle --gpu_free 0-7 --experiments_per_gpu 1 |& tee log.txt
 ```
 
 The script, `run_experiments.py`, automatically runs commands using the docker files, e.g., executing `run_cpu.sh mujoco150 0 python ~/MetaMem/main.py --env-type gridworld_varibad`, to run gridworld on CPU 0. Within a docker, this command could be run with `python main.py --env-type gridworld_varibad`. 
 
 The main training loop itself can be found in `metalearner.py`, the hypernetwork is in `policy.py`, and added supervision for task inference is in `ppo.py`.
 
-After training, `visualize_runs.py` can be used for plotting. To automatically plot all results for a set of experiments, you can also use the `run_experiments.py` script.
+After training, `visualize_runs.py` can be used for plotting. To automatically plot all results for a set of experiments, you can also use the `run_experiments.py` script. Plots will be saved in `hyper//data/plts/` by default.
 
 *Example usage:*
 ```
 python3 run_experiments.py main_results --plot
 ```
 
-To measure the different types of gradient decay for different aggregators in the SplAgger analysis, you can use `visualize_analysis.py`.
+To measure the different types of gradient decay for different aggregators in the SplAgger analysis, you can use `visualize_analysis.py`. (Currently set up for CPU usage.)
 
 *Example usage:*
 ```
-python visualize_analysis.py --grad --noise --no_log
-python visualize_analysis.py --param_grad --noise --no_log
-python visualize_analysis.py --inputs_grad --noise
-python visualize_analysis.py --perm_diff --no_log
+/home/jaceck/hyper/run_cpu.sh mujoco150 0 python /home/jaceck/hyper/visualize_analysis.py --grad --noise --no_log
+/home/jaceck/hyper/run_cpu.sh mujoco150 0 python /home/jaceck/hyper/visualize_analysis.py  --param_grad --noise --no_log
+/home/jaceck/hyper/run_cpu.sh mujoco150 0 python /home/jaceck/hyper/visualize_analysis.py  --inputs_grad --noise
+/home/jaceck/hyper/run_cpu.sh mujoco150 0 python /home/jaceck/hyper/visualize_analysis.py  --perm_diff --no_log
 ```
 
 ### Comments
