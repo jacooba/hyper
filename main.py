@@ -262,9 +262,9 @@ def main():
                          "Please specify --norm_rew_clip_param in your args!")
 
     if 'PlanningGame' in args.env_name:
-        assert args.max_rollouts_per_task == 1, "If you want to use the planning game with > 1 rollout per task,"
+        assert args.max_rollouts_per_task == 1, ("If you want to use the planning game with > 1 rollout per task,"
                                                 "You need to modify the environment to reset graph symbols at end of task"
-                                                "and also reset the agent location at the end of each episode."
+                                                "and also reset the agent location at the end of each episode.")
 
     # begin training (loop through all passed seeds)
     seed_list = [args.seed] if isinstance(args.seed, int) else args.seed
