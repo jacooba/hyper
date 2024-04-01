@@ -411,6 +411,8 @@ class Policy(nn.Module):
         # reset all parameters except for task encoding
         for name, params in self.named_parameters():
             if "task_encoder" not in name:
+                with torch.no_grad():
+                    params.data.copy_(reset_parameters[name])
 
     def reset_hyper_parameters(self, reset_parameters):
         # reset all parameters except for head of hypernet
