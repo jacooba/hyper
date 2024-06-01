@@ -20,9 +20,9 @@ This repository contains code for the papers [*Hypernetworks in Meta-Reinforceme
 @article{beck2024splagger,
   author    = {Jacob Beck and Matthew Jackson and Risto Vuorio and Zheng Xiong and Shimon Whiteson},
   title     = {SplAgger: Split Aggregation for Meta-Reinforcement Learning},
-  journal   = {arXiv},
+  booktitle   = {Reinforcement Learning Conference},
   eprint    = {2403.03020},
-  url       = {http://arxiv.org/abs/2403.03020},
+  url={https://openreview.net/forum?id=O1Vmua4RVW},
   year      = {2024},
 }
 ```
