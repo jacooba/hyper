@@ -1,6 +1,6 @@
 # Hypernetworks in Meta-RL
 
-This repository contains code for the papers [*Hypernetworks in Meta-Reinforcement Learning* (Beck et al., 2022)](https://arxiv.org/abs/2210.11348), published at [CoRL](https://proceedings.mlr.press/v205/beck23a.html), and [*Recurrent Hypernetworks are Surprisingly Strong in Meta-RL* (Beck et al., 2023)](https://arxiv.org/abs/2309.14970), published at [NeurIPS](https://neurips.cc/virtual/2023/poster/70399), and [*SplAgger: Split Aggregation for Meta-Reinforcement Learning* (Beck et al., 2024)](https://arxiv.org/abs/2403.03020), published at RLC.
+This repository contains code for the papers [*Hypernetworks in Meta-Reinforcement Learning* (Beck et al., 2022)](https://arxiv.org/abs/2210.11348), published at [CoRL](https://proceedings.mlr.press/v205/beck23a.html), and [*Recurrent Hypernetworks are Surprisingly Strong in Meta-RL* (Beck et al., 2023)](https://arxiv.org/abs/2309.14970), published at [NeurIPS](https://neurips.cc/virtual/2023/poster/70399), and [*SplAgger: Split Aggregation for Meta-Reinforcement Learning* (Beck et al., 2024)](https://arxiv.org/abs/2403.03020), published at [RLC](https://neurips.cc/virtual/2023/poster/70399](https://rlj.cs.umass.edu/2024/papers/Paper48.html).
 
 ```
 @inproceedings{beck2022hyper,
